@@ -1,0 +1,68 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'bloc/auth_bloc.dart';
+import 'repositories/auth_repository.dart';
+import 'screens/welcome_screen.dart';
+import 'screens/login_or_sign_screen.dart';
+import 'screens/home_screen.dart';
+import 'theme/app_theme.dart';
+import 'utils/local_storage.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await LocalStorage.init();
+
+  final authRepo = AuthRepository();
+
+  runApp(MyApp(authRepo: authRepo));
+}
+
+class MyApp extends StatelessWidget {
+  final AuthRepository authRepo;
+  const MyApp({super.key, required this.authRepo});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+        create: (_) => AuthBloc(authRepo: authRepo)..add(AppStarted()),
+        child: MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'Modular BLoC Auth',
+          theme: AppTheme.lightTheme,
+          home: AppEntryPoint(),
+        ),
+      );
+    
+  }
+}
+
+class AppEntryPoint extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return BlocListener<AuthBloc, AuthState>(
+      listener: (context, state) {
+        // Navigation handled in builder below as well
+      },
+      child: BlocBuilder<AuthBloc, AuthState>(
+        builder: (context, state) {
+          
+
+          if (state is AuthInitialState) {
+            return const Scaffold(body: Center(child: CircularProgressIndicator()));
+          }
+
+          if (state is AuthShowWelcomeState) {
+            return const WelcomeScreen();
+          }
+
+          if (state is AuthAuthenticatedState) {
+            return HomeScreen();
+          }
+
+          // AuthUnauthenticatedState or errors
+          return const LoginOrSignScreen();
+        },
+      ),
+    );
+  }
+}
