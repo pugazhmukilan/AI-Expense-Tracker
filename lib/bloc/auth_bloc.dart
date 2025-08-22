@@ -48,9 +48,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoadingState(action: AuthAction.login));
     try {
       final token = await authRepo.login(event.email, event.password);
-      await LocalStorage.setString('authToken', token);
-      emit(AuthAuthenticatedState(token: token));
+      await LocalStorage.setString('authToken', token[0]);
+      await LocalStorage.setString('name', token[1]);
+      await LocalStorage.setString('email', token[2]);
+      emit(AuthAuthenticatedState(token: token[0]));
     } catch (e) {
+      print(e.toString());
       emit(AuthFailureState(message: e.toString()));
       emit(AuthUnauthenticatedState());
     }
@@ -60,8 +63,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoadingState(action: AuthAction.signup));
     try {
       final token = await authRepo.signup(event.name, event.email, event.password);
-      await LocalStorage.setString('authToken', token);
-      emit(AuthAuthenticatedState(token: token));
+      await LocalStorage.setString('authToken', token[0]);
+      await LocalStorage.setString('name', token[1]);
+      await LocalStorage.setString('email', token[2]);
+      emit(AuthAuthenticatedState(token: token[0]));
     } catch (e) {
       emit(AuthFailureState(message: e.toString()));
       emit(AuthUnauthenticatedState());
@@ -75,3 +80,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthUnauthenticatedState());
   }
 }
+
+
+
+//print all the information in the 
