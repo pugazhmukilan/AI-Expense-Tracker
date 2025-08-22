@@ -18,6 +18,7 @@ class _SignupScreenState extends State<SignupScreen> {
   final _nameCtrl = TextEditingController();
   final _emailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
+  bool _obscurePassword = true; // state variable
 
   @override
   void dispose() {
@@ -25,6 +26,12 @@ class _SignupScreenState extends State<SignupScreen> {
     _emailCtrl.dispose();
     _passwordCtrl.dispose();
     super.dispose();
+  }
+
+  String? _passValidator(String? v) {
+    if (v == null || v.trim().isEmpty) return 'Password required';
+    if (v.length < 6) return 'Minimum 6 characters';
+    return null;
   }
 
   @override
@@ -99,16 +106,26 @@ class _SignupScreenState extends State<SignupScreen> {
                             
                     // Password
                     TextFormField(
-                      controller: _passwordCtrl,
-                      decoration: InputDecoration(
-                        labelText: 'Password',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
+                        controller: _passwordCtrl,
+                        decoration: InputDecoration(
+                          labelText: 'Password',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _obscurePassword = !_obscurePassword;
+                              });
+                            },
+                          ),
                         ),
+                        obscureText: _obscurePassword,
+                        validator: _passValidator,
                       ),
-                      obscureText: true,
-                      validator: validators.passValidator,
-                    ),
                     const SizedBox(height: 10),
                             
                     // Signup Button

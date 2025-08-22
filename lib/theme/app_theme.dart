@@ -9,6 +9,7 @@ class AppColors {
 }
 
 class AppTheme {
+  
   static final ThemeData lightTheme = ThemeData(
     scaffoldBackgroundColor: AppColors.background,
     primaryColor: AppColors.primary,

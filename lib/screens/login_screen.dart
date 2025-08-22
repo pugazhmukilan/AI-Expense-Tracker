@@ -106,22 +106,38 @@ class _LoginScreenState extends State<LoginScreen> {
                         validator: _passValidator,
                       ),
                       const SizedBox(height: 24),
-
+                       
                       ElevatedButton(
-                        onPressed: isLoading
-                            ? null
-                            : () {
-                                if (_formKey.currentState!.validate()) {
-                                  context.read<AuthBloc>().add(LoginRequested(email: _emailCtrl.text.trim(), password: _passwordCtrl.text));
-                                }
-                              },
-                        child: SizedBox(
-                          height: 48,
-                          child: Center(
-                            child: isLoading ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) : const Text('Login'),
-                          ),
+                      onPressed: isLoading
+                          ? null
+                          : () {
+                              if (_formKey.currentState!.validate()) {
+                                 context.read<AuthBloc>().add(LoginRequested(email: _emailCtrl.text.trim(), password: _passwordCtrl.text));
+                              }
+                            },
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size.fromHeight(48),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
                       ),
+                      child: isLoading
+                          ? const SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : Text(
+                              'Login',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(color: AppColors.background),
+                            ),
+                    ),
                       Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
