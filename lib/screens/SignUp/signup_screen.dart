@@ -3,7 +3,7 @@ import 'package:ai_expense/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../bloc/auth_bloc.dart';
-import '../home_screen.dart';
+import '../Home/home_screen.dart';
 import './signup_validators.dart' as validators;
 
 class SignupScreen extends StatefulWidget {

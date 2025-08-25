@@ -8,7 +8,7 @@ class AuthRepository {
   // Simulate network calls. Replace with real API.
 
   // Real endpoints (port 8000)
-  final String loginUrl = 'http://localhost:8000/api/auth/login';
+  final String loginUrl = 'http://10.160.59.117:8000/api/auth/login';
   final String registerUrl = 'http://localhost:8000/api/auth/register';
 
   //TODO: all authentication logic should be implemented here using API
@@ -19,8 +19,14 @@ class AuthRepository {
     headers: {"Content-Type": "application/json"},
     body:jsonEncode({'email': email, 'password': password}));
     print(response.statusCode);
+    print(response.body);
     if (response.statusCode == 200) {
-      return [jsonDecode(response.body)['token'], jsonDecode(response.body)['message']['name'],jsonDecode(response.body)['message']['email']];
+      final data = jsonDecode(response.body);
+        return [
+          data['token'],        // token
+          data['user']['name'], // username
+          data['user']['email'] // email
+        ];
     }
     throw Exception('Invalid email or password');
 
@@ -40,7 +46,12 @@ class AuthRepository {
      body:jsonEncode({'name':name,'email': email, 'password': password}) );
      print(response.statusCode);
     if (response.statusCode == 201) {
-      return [jsonDecode(response.body)['token'], jsonDecode(response.body)['message']['name'],jsonDecode(response.body)['message']['email']];
+      final data = jsonDecode(response.body);
+        return [
+          data['token'],        // token
+          data['user']['name'], // username
+          data['user']['email'] // email
+        ];
     }
     throw Exception('Signup failed');
     // await Future.delayed(const Duration(seconds: 2));

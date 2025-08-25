@@ -1,7 +1,8 @@
+import '../utils/local_storage.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import '../repositories/auth_repository.dart';
-import '../utils/local_storage.dart';
+
 
 part 'auth_event.dart';
 part 'auth_state.dart';
@@ -51,6 +52,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await LocalStorage.setString('authToken', token[0]);
       await LocalStorage.setString('name', token[1]);
       await LocalStorage.setString('email', token[2]);
+    
+   
+
+
+     
       emit(AuthAuthenticatedState(token: token[0]));
     } catch (e) {
       print(e.toString());
