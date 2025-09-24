@@ -8,8 +8,8 @@ class AuthRepository {
   // Simulate network calls. Replace with real API.
 
   // Real endpoints (port 8000)
-  final String loginUrl = 'http://10.160.59.117:8000/api/auth/login';
-  final String registerUrl = 'http://localhost:8000/api/auth/register';
+  final String loginUrl = 'https://capestone-backend-1-q0hb.onrender.com/api/auth/login';
+  final String registerUrl = 'https://capestone-backend-1-q0hb.onrender.com/api/auth/register';
 
   //TODO: all authentication logic should be implemented here using API
   
