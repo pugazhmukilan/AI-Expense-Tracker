@@ -10,7 +10,6 @@ class WelcomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        
         decoration: const BoxDecoration(
           color: Color.fromARGB(255, 255, 255, 255),
           image: DecorationImage(
@@ -24,12 +23,20 @@ class WelcomeScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 80),
-              Text('Welcome to', style: Theme.of(context).textTheme.headlineLarge?.copyWith(fontSize: 50)),
-              
-              // Text('Something App', style: Theme.of(context).textTheme.headlineLarge?.copyWith(fontSize: 40)),
-              Image.asset("assets/logo/expensio.png",scale:10,),
+              Text(
+                'Welcome to',
+                style: Theme.of(
+                  context,
+                ).textTheme.headlineLarge?.copyWith(fontSize: 50),
+              ),
+
+              //Text('Something App', style: Theme.of(context).textTheme.headlineLarge?.copyWith(fontSize: 40)),
+              Image.asset("assets/logo/expensio.png", scale: 10),
               const SizedBox(height: 8),
-              Text('The Expensio app for managing\nYour expense with AI', style: Theme.of(context).textTheme.bodyMedium),
+              Text(
+                'The Expensio app for managing\nYour expense with AI',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
               const Spacer(),
               GestureDetector(
                 onTap: () {
@@ -39,13 +46,19 @@ class WelcomeScreen extends StatelessWidget {
                 child: Container(
                   height: 60,
                   width: double.infinity,
-                  decoration:BoxDecoration(
+                  decoration: BoxDecoration(
                     color: AppColors.primary,
                     borderRadius: BorderRadius.circular(16),
-                    
                   ),
-                  child: Center(child: Text("Next", style: TextStyle(color: Theme.of(context).colorScheme.onPrimary))),
-                )
+                  child: Center(
+                    child: Text(
+                      "Next",
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onPrimary,
+                      ),
+                    ),
+                  ),
+                ),
               ),
               const SizedBox(height: 24),
             ],
