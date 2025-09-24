@@ -1,3 +1,4 @@
+import 'package:ai_expense/screens/budget_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'bloc/auth_bloc.dart';
@@ -24,15 +25,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-        create: (_) => AuthBloc(authRepo: authRepo)..add(AppStarted()),
-        child: MaterialApp(
-          debugShowCheckedModeBanner: false,
-          title: 'Modular BLoC Auth',
-          theme: AppTheme.lightTheme,
-          home: AppEntryPoint(),
-        ),
-      );
-    
+      create: (_) => AuthBloc(authRepo: authRepo)..add(AppStarted()),
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Modular BLoC Auth',
+        theme: AppTheme.lightTheme,
+        home: AppEntryPoint(),
+      ),
+    );
   }
 }
 
@@ -45,10 +45,10 @@ class AppEntryPoint extends StatelessWidget {
       },
       child: BlocBuilder<AuthBloc, AuthState>(
         builder: (context, state) {
-          
-
           if (state is AuthInitialState) {
-            return const Scaffold(body: Center(child: CircularProgressIndicator()));
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
           }
 
           if (state is AuthShowWelcomeState) {

@@ -56,13 +56,14 @@ class _SignupScreenState extends State<SignupScreen> {
                 );
               }
               if (state is AuthFailureState) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(state.message)),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text(state.message)));
               }
             },
             builder: (context, state) {
-              final isLoading = state is AuthLoadingState &&
+              final isLoading =
+                  state is AuthLoadingState &&
                   state.action == AuthAction.signup;
 
               return Form(
@@ -70,13 +71,13 @@ class _SignupScreenState extends State<SignupScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    const SizedBox(height:28),
+                    const SizedBox(height: 28),
                     Text(
-                        'SignUp',
-                        style: Theme.of(context).textTheme.headlineLarge,
-                      ),
-                      const SizedBox(height: 24),
-              
+                      'SignUp',
+                      style: Theme.of(context).textTheme.headlineLarge,
+                    ),
+                    const SizedBox(height: 24),
+
                     // Name
                     TextFormField(
                       controller: _nameCtrl,
@@ -89,7 +90,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       validator: validators.nameValidator,
                     ),
                     const SizedBox(height: 12),
-                            
+
                     // Email
                     TextFormField(
                       controller: _emailCtrl,
@@ -103,71 +104,73 @@ class _SignupScreenState extends State<SignupScreen> {
                       validator: validators.emailValidator,
                     ),
                     const SizedBox(height: 12),
-                            
+
                     // Password
                     TextFormField(
-                        controller: _passwordCtrl,
-                        decoration: InputDecoration(
-                          labelText: 'Password',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _obscurePassword = !_obscurePassword;
-                              });
-                            },
-                          ),
+                      controller: _passwordCtrl,
+                      decoration: InputDecoration(
+                        labelText: 'Password',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
                         ),
-                        obscureText: _obscurePassword,
-                        validator: _passValidator,
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscurePassword
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscurePassword = !_obscurePassword;
+                            });
+                          },
+                        ),
                       ),
+                      obscureText: _obscurePassword,
+                      validator: _passValidator,
+                    ),
                     const SizedBox(height: 10),
-                            
+
                     // Signup Button
                     ElevatedButton(
-                      onPressed: isLoading
-                          ? null
-                          : () {
-                              if (_formKey.currentState!.validate()) {
-                                context.read<AuthBloc>().add(
-                                      SignupRequested(
-                                        name: _nameCtrl.text.trim(),
-                                        email: _emailCtrl.text.trim(),
-                                        password: _passwordCtrl.text,
-                                      ),
-                                    );
-                              }
-                            },
+                      onPressed:
+                          isLoading
+                              ? null
+                              : () {
+                                if (_formKey.currentState!.validate()) {
+                                  context.read<AuthBloc>().add(
+                                    SignupRequested(
+                                      name: _nameCtrl.text.trim(),
+                                      email: _emailCtrl.text.trim(),
+                                      password: _passwordCtrl.text,
+                                    ),
+                                  );
+                                }
+                              },
                       style: ElevatedButton.styleFrom(
                         minimumSize: const Size.fromHeight(48),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: isLoading
-                          ? const SizedBox(
-                              width: 24,
-                              height: 24,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
+                      child:
+                          isLoading
+                              ? const SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                              : Text(
+                                'Signup',
+                                style: Theme.of(context).textTheme.titleMedium
+                                    ?.copyWith(color: AppColors.background),
                               ),
-                            )
-                          : Text(
-                              'Signup',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium
-                                  ?.copyWith(color: AppColors.background),
-                            ),
                     ),
                     const SizedBox(height: 10),
-                            
+
                     // Login Link
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -177,7 +180,8 @@ class _SignupScreenState extends State<SignupScreen> {
                           onPressed: () {
                             Navigator.of(context).pushAndRemoveUntil(
                               MaterialPageRoute(
-                                  builder: (context) => const LoginScreen()),
+                                builder: (context) => const LoginScreen(),
+                              ),
                               (Route<dynamic> route) => route.isFirst,
                             );
                           },
