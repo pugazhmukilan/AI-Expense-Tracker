@@ -47,9 +47,7 @@ class SmsService {
       return body.contains('debit') || body.contains('credit');
     }).toList();
 
-    for(var msg in transactions){
-      print("Filtered Message: ${msg.date}");
-    }
+    
     return transactions;
   }
   static Future<List<Map<String,dynamic>>> fetchSms(DateTime fromDate) async {
@@ -100,7 +98,7 @@ class SmsService {
   };
   
   final body = jsonEncode(messages); // send as array
-  
+  print("sending the message to the backend "+body);
   try {
     final response = await http.post(url, headers: headers, body: body);
     
