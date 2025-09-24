@@ -1,11 +1,11 @@
-import 'package:ai_expense/screens/budget_screen.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'bloc/auth_bloc.dart';
 import 'repositories/auth_repository.dart';
 import 'screens/welcome_screen.dart';
 import 'screens/login_or_sign_screen.dart';
-import 'screens/home_screen.dart';
+import 'screens/Home/home_screen.dart';
 import 'theme/app_theme.dart';
 import 'utils/local_storage.dart';
 
@@ -56,6 +56,7 @@ class AppEntryPoint extends StatelessWidget {
           }
 
           if (state is AuthAuthenticatedState) {
+            
             return HomeScreen();
           }
 

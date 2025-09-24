@@ -1,3 +1,4 @@
+
 import 'dart:ui';
 import 'package:ai_expense/screens/budget_screen.dart';
 import 'package:ai_expense/screens/view_budget_screen.dart';
@@ -5,10 +6,11 @@ import 'package:ai_expense/theme/app_theme.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:fl_chart/fl_chart.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../bloc/auth_bloc.dart';
-import 'login_or_sign_screen.dart';
+import '../../bloc/auth_bloc.dart';
+
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -31,6 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+
       resizeToAvoidBottomInset: true,
       body: IndexedStack(index: _selectedIndex, children: _pages),
       bottomNavigationBar: BottomNavigationBar(
@@ -43,6 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: Icon(Icons.account_balance_wallet_rounded),
             label: 'Wallet',
           ),
+
         ],
         currentIndex: _selectedIndex,
         onTap: _onItemTapped, // no Navigator.push
