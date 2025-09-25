@@ -11,31 +11,19 @@ class MessageBloc extends Bloc<MessageEvent, MessageState> {
   MessageBloc() : super(MessageInitial()) {
     on<FetchMessage>((event, emit) async{
       // TODO: implement event handler
-      emit(MessageFetching());
-      print("getting the date from the shared preference ");
+      emit(MessageFetching(message:"Fecthing Messages"));
+     
       if(LocalStorage.getString("lastdate") == "" || LocalStorage.getString("lastdate") == null){
-        print("insde the if statement");
-        await LocalStorage.setString("lastdate", DateTime.now().toString());
+          await LocalStorage.setString("lastdate", DateTime.now().toString());
       }
       DateTime lastDate = DateTime.parse(LocalStorage.getString("lastdate").toString());
      
-      lastDate = DateTime.parse("2025-09-24 00:00:00.000");
-       print("laste date is ==================================="+ lastDate.toString());
+      
 
       List<Map<String,dynamic>> messages = await SmsService.fetchSms(lastDate);
       LocalStorage.setString("lastdate", DateTime.now().toString());
+       emit(MessageFetching(message:"Storing Messages"));
 
-      print("======================================");
-      for(var msg in messages){
-        print("body "+msg['body']);
-        print("address "+msg['address']);
-        print("date "+msg['date']);
-       
-        print("transaction type "+msg['transaction_type']);
-        print("amount "+msg['amount']);
-
-      }
-      print("======================================");
 
 
 

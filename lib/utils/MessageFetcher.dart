@@ -56,7 +56,7 @@ class SmsService {
       
       // Convert to JSON format
       List<Map<String, dynamic>> jsonData = messages.map((sms) {
-        final dateMatch = RegExp(r'(\d{4}-\d{2}-\d{2})').firstMatch(sms.body ?? '');
+        final dateMatch = RegExp(r'(\d{2}-\d{2}-\d{2})').firstMatch(sms.body ?? '');
         return {
           'address': sms.address ?? '',
           'subject': sms.subject ?? '',
@@ -69,6 +69,10 @@ class SmsService {
         };
       }).toList();
 
+
+      if(jsonData.isEmpty){
+        return jsonData;
+      }
       int answer = await sendMessageToBackEnd(jsonData);
       print("asnwer is ${answer}");
       //Convert to JSON string

@@ -8,5 +8,8 @@ sealed class MessageState extends Equatable {
 }
 
 final class MessageInitial extends MessageState {}
-final class MessageFetching extends MessageState {}
+final class MessageFetching extends MessageState {
+  late String message;
+  MessageFetching({required this.message});
+}
 final class MessageFetched extends MessageState {}

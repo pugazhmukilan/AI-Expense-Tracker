@@ -6,6 +6,7 @@ import 'package:ai_expense/screens/budget_screen.dart';
 import 'package:ai_expense/screens/login_or_sign_screen.dart' show LoginOrSignScreen;
 import 'package:ai_expense/screens/view_budget_screen.dart';
 import 'package:ai_expense/theme/app_theme.dart';
+import 'package:ai_expense/utils/local_storage.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -68,6 +69,7 @@ class _HomeContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String UserName = LocalStorage.getString('name') ?? "User";
     return Container(
       decoration: const BoxDecoration(
         image: DecorationImage(
@@ -75,8 +77,18 @@ class _HomeContent extends StatelessWidget {
           fit: BoxFit.cover,
         ),
       ),
-      child: SafeArea(
-        child: ListView(
+      
+      child: Scaffold(
+        floatingActionButton: FloatingActionButton(
+          backgroundColor: AppColors.tertiary,
+          child: const Icon(Icons.upload_file,color: AppColors.primary,),
+          onPressed: () {
+            context.read<MessageBloc>().add(FetchMessage());
+          },
+          
+        
+        ),
+        body: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
           children: [
             Row(
@@ -85,8 +97,9 @@ class _HomeContent extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    const SizedBox(height: 20,),
                     Text(
-                      'Hi Jotham!!',
+                      'Hi ${UserName}!!',
                       style: Theme.of(
                         context,
                       ).textTheme.headlineLarge?.copyWith(
@@ -124,30 +137,29 @@ class _HomeContent extends StatelessWidget {
                 ),
               ],
             ),
+            const SizedBox(height: 10),
             BlocBuilder<MessageBloc,MessageState>(builder: (context, state) {
               if(state is MessageFetching){
-                return const Center(child: CircularProgressIndicator());
+                return const Center(child: CircularProgressIndicator(color: Colors.green,));
               } else if (state is MessageFetched) {
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 20.0),
-                  child: Text(
-                    "Message fetched successfully!",
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontFamily: "Poppins",
-                      color: Colors.black,
-                      fontSize: 16,
+                  child: Center(
+                    child: Text(
+                      "Message fetched successfully!",
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontFamily: "Poppins",
+                        color: Colors.green,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                 );
               }
               return const SizedBox();
             }),
-            const SizedBox(height: 30),
-            ElevatedButton(onPressed: (){
-              context.read<MessageBloc>().add(FetchMessage());
-            }, child: Text("Fetch Messages")),
-
-            const SizedBox(height: 30),
+            const SizedBox(height: 10),
+           
 
             _buildGlassmorphismContainer(
               child: Column(
@@ -376,6 +388,8 @@ class _HomeContent extends StatelessWidget {
             const SizedBox(height: 24),
           ],
         ),
+
+        
       ),
     );
   }
