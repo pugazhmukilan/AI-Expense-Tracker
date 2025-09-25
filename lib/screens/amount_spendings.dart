@@ -36,15 +36,14 @@ class _AmountSpendingsScreenState extends State<AmountSpendingsScreen> {
           },
         ),
         backgroundColor: AppColors.primary,
-        title: const Center(
-          child: Text(
-            "Amount Spent",
-            style: TextStyle(
-              fontFamily: "Poppins",
-              color: Colors.white,
-              fontSize: 24,
-              fontWeight: FontWeight.w500,
-            ),
+        centerTitle: true,
+        title: const Text(
+          "Amount Spent",
+          style: TextStyle(
+            fontFamily: "Poppins",
+            color: Colors.white,
+            fontSize: 24,
+            fontWeight: FontWeight.w500,
           ),
         ),
       ),
@@ -262,3 +261,4 @@ class _AmountSpendingsScreenState extends State<AmountSpendingsScreen> {
     );
   }
 }
+
