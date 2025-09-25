@@ -1,9 +1,16 @@
-
 import 'dart:ffi';
 import 'dart:ui';
-import 'package:ai_expense/bloc/message_bloc.dart' show MessageBloc, MessageFetched, MessageFetching, MessageState, FetchMessage;
+import 'package:ai_expense/bloc/message_bloc.dart'
+    show
+        MessageBloc,
+        MessageFetched,
+        MessageFetching,
+        MessageState,
+        FetchMessage;
+import 'package:ai_expense/screens/amount_spendings.dart';
 import 'package:ai_expense/screens/budget_screen.dart';
-import 'package:ai_expense/screens/login_or_sign_screen.dart' show LoginOrSignScreen;
+import 'package:ai_expense/screens/login_or_sign_screen.dart'
+    show LoginOrSignScreen;
 import 'package:ai_expense/screens/view_budget_screen.dart';
 import 'package:ai_expense/theme/app_theme.dart';
 import 'package:dotted_border/dotted_border.dart';
@@ -14,7 +21,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../bloc/auth_bloc.dart';
 
-
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -23,8 +29,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-
-
   int _selectedIndex = 0;
 
   void _onItemTapped(int index) {
@@ -38,7 +42,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
       resizeToAvoidBottomInset: true,
       body: IndexedStack(index: _selectedIndex, children: _pages),
       bottomNavigationBar: BottomNavigationBar(
@@ -51,7 +54,6 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: Icon(Icons.account_balance_wallet_rounded),
             label: 'Wallet',
           ),
-
         ],
         currentIndex: _selectedIndex,
         onTap: _onItemTapped, // no Navigator.push
@@ -124,28 +126,33 @@ class _HomeContent extends StatelessWidget {
                 ),
               ],
             ),
-            BlocBuilder<MessageBloc,MessageState>(builder: (context, state) {
-              if(state is MessageFetching){
-                return const Center(child: CircularProgressIndicator());
-              } else if (state is MessageFetched) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 20.0),
-                  child: Text(
-                    "Message fetched successfully!",
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontFamily: "Poppins",
-                      color: Colors.black,
-                      fontSize: 16,
+            BlocBuilder<MessageBloc, MessageState>(
+              builder: (context, state) {
+                if (state is MessageFetching) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (state is MessageFetched) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 20.0),
+                    child: Text(
+                      "Message fetched successfully!",
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontFamily: "Poppins",
+                        color: Colors.black,
+                        fontSize: 16,
+                      ),
                     ),
-                  ),
-                );
-              }
-              return const SizedBox();
-            }),
+                  );
+                }
+                return const SizedBox();
+              },
+            ),
             const SizedBox(height: 30),
-            ElevatedButton(onPressed: (){
-              context.read<MessageBloc>().add(FetchMessage());
-            }, child: Text("Fetch Messages")),
+            ElevatedButton(
+              onPressed: () {
+                context.read<MessageBloc>().add(FetchMessage());
+              },
+              child: Text("Fetch Messages"),
+            ),
 
             const SizedBox(height: 30),
 
@@ -299,6 +306,35 @@ class _HomeContent extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
+
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AmountSpendingsScreen(),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                backgroundColor: AppColors.tertiary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                side: BorderSide(color: AppColors.onPrimary.withOpacity(0.5)),
+              ),
+              child: const Text(
+                'View Amount Spent',
+                style: TextStyle(
+                  fontFamily: "Poppins",
+                  color: Colors.white,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 16),
 
             ElevatedButton(
               onPressed: () {
