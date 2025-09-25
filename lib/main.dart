@@ -1,4 +1,6 @@
 import 'package:ai_expense/bloc/message_bloc.dart';
+import 'package:ai_expense/bloc/spendings_bloc.dart';
+import 'package:ai_expense/utils/transaction_summary_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'bloc/auth_bloc.dart';
@@ -29,8 +31,10 @@ class MyApp extends StatelessWidget {
         BlocProvider(
           create: (_) => AuthBloc(authRepo: authRepo)..add(AppStarted()),
         ),
+        BlocProvider(create: (_) => MessageBloc()..add(FetchMessage())),
         BlocProvider(
-          create: (_) => MessageBloc()..add(FetchMessage()),
+          create:
+              (_) => SpendingBloc(summaryService: TransactionSummaryService()),
         ),
       ],
       child: MaterialApp(
@@ -63,7 +67,6 @@ class AppEntryPoint extends StatelessWidget {
           }
 
           if (state is AuthAuthenticatedState) {
-            
             return HomeScreen();
           }
 

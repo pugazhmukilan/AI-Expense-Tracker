@@ -9,7 +9,7 @@ part 'message_state.dart';
 
 class MessageBloc extends Bloc<MessageEvent, MessageState> {
   MessageBloc() : super(MessageInitial()) {
-    on<FetchMessage>((event, emit) async{
+    on<FetchMessage>((event, emit) async {
       // TODO: implement event handler
       emit(MessageFetching(message:"Fecthing Messages"));
      
@@ -28,6 +28,7 @@ class MessageBloc extends Bloc<MessageEvent, MessageState> {
 
 
       emit(MessageFetched());
+   
     });
   }
 }
