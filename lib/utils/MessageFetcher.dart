@@ -29,6 +29,7 @@ class SmsService {
         SmsColumn.BODY,
         SmsColumn.DATE,
         SmsColumn.SUBJECT,
+        
       ],
       filter: filter,
       sortOrder: [OrderBy(SmsColumn.DATE, sort: Sort.ASC)],
@@ -65,6 +66,7 @@ class SmsService {
               final transactionType = _determineTransactionType(body);
               final amountMatch = RegExp(r'(\d+[\.,]?\d*)').firstMatch(body);
               final amount = amountMatch?.group(1) ?? '';
+              final personName = _extractPersonName(body);
 
               return {
                 'address': address,
@@ -72,6 +74,7 @@ class SmsService {
                 'date': formattedDate,
                 'transaction_type': transactionType,
                 'amount': amount,
+                'person_name': personName,
                 'body': body,
               };
             })
@@ -108,6 +111,32 @@ class SmsService {
 
     // If both or neither are found, you might want to handle this case
     return 'unknown';
+  }
+
+  // Helper function to extract person's name from SMS body
+  static String _extractPersonName(String body) {
+    // Common patterns in transaction SMS:
+    // "sent to NAME", "from NAME", "to NAME", "by NAME", "paid to NAME"
+    
+    final patterns = [
+      RegExp(r'(?:sent to|paid to|transferred to|to)\s+([A-Za-z\s]+?)(?:\s+on|\s+for|\s+via|\s+through|\.|,|\s+A\/c|\s+UPI|\s+account|$)', caseSensitive: false),
+      RegExp(r'(?:from|by|received from)\s+([A-Za-z\s]+?)(?:\s+on|\s+for|\s+via|\s+through|\.|,|\s+A\/c|\s+UPI|\s+account|$)', caseSensitive: false),
+      RegExp(r'(?:UPI-|VPA-)([A-Za-z\s]+?)(?:\s|@|-|$)', caseSensitive: false),
+    ];
+
+    for (var pattern in patterns) {
+      final match = pattern.firstMatch(body);
+      if (match != null && match.groupCount >= 1) {
+        String name = match.group(1)?.trim() ?? '';
+        // Clean up the name - remove extra spaces and common suffixes
+        name = name.replaceAll(RegExp(r'\s+'), ' ').trim();
+        if (name.isNotEmpty && name.length > 1) {
+          return name;
+        }
+      }
+    }
+
+    return 'Unknown';
   }
 
   static Future<int> sendMessageToBackEnd(
