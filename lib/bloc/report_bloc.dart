@@ -8,6 +8,7 @@ class ReportBloc extends Bloc<ReportEvent, ReportState> {
 
   ReportBloc({required this.reportRepository}) : super(ReportInitial()) {
     on<FetchReports>(_onFetchReports);
+    on<FetchReportDetails>(_onFetchReportDetails);
   }
 
   Future<void> _onFetchReports(
@@ -28,4 +29,19 @@ class ReportBloc extends Bloc<ReportEvent, ReportState> {
       emit(ReportError(message: e.toString()));
     }
   }
+
+  Future<void> _onFetchReportDetails(
+    FetchReportDetails event,
+    Emitter<ReportState> emit,
+  ) async {
+    emit(ReportDetailsFetching());
+    
+    try {
+      final reportDetails = await reportRepository.fetchReportDetails(event.reportId);
+      emit(ReportDetailsFetched(reportDetails: reportDetails));
+    } catch (e) {
+      emit(ReportDetailsError(message: e.toString()));
+    }
+  }
 }
+

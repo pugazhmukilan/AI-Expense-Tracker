@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:ai_expense/models/report_model.dart';
+import 'package:ai_expense/models/report_details_model.dart';
 import 'package:ai_expense/utils/local_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:ai_expense/utils/backend.dart' as backendlink;
@@ -129,4 +130,115 @@ class ReportRepository {
     
     */
   }
+
+  // Generate dummy report details for testing
+  ReportDetailsModel _getDummyReportDetails(String reportId) {
+    final now = DateTime.now();
+    
+    // Find the matching report from dummy reports
+    final dummyReports = _getDummyReports();
+    final report = dummyReports.firstWhere(
+      (r) => r.id == reportId,
+      orElse: () => dummyReports.first,
+    );
+
+    return ReportDetailsModel(
+      id: reportId,
+      month: report.month,
+      year: report.year,
+      isSeen: report.isSeen,
+      createdAt: report.createdAt,
+      totalAmount: (report.additionalData?['totalAmount'] ?? 10000.0).toDouble(),
+      totalTransactions: report.additionalData?['totalTransactions'] ?? 40,
+      categoryBreakdown: {
+        'Food & Dining': 3500.0,
+        'Transportation': 1200.0,
+        'Shopping': 2800.0,
+        'Entertainment': 1500.0,
+        'Bills & Utilities': 2000.0,
+        'Healthcare': 800.0,
+        'Others': 650.0,
+      },
+      topExpenses: [
+        TopExpense(
+          description: 'Grocery Shopping',
+          amount: 2500.0,
+          category: 'Food & Dining',
+          date: now.subtract(const Duration(days: 5)),
+          merchant: 'Supermarket',
+        ),
+        TopExpense(
+          description: 'Restaurant Dinner',
+          amount: 1800.0,
+          category: 'Food & Dining',
+          date: now.subtract(const Duration(days: 10)),
+          merchant: 'The Fancy Restaurant',
+        ),
+        TopExpense(
+          description: 'Online Shopping',
+          amount: 1500.0,
+          category: 'Shopping',
+          date: now.subtract(const Duration(days: 15)),
+          merchant: 'Amazon',
+        ),
+        TopExpense(
+          description: 'Electric Bill',
+          amount: 1200.0,
+          category: 'Bills & Utilities',
+          date: now.subtract(const Duration(days: 20)),
+          merchant: 'Power Company',
+        ),
+        TopExpense(
+          description: 'Fuel',
+          amount: 800.0,
+          category: 'Transportation',
+          date: now.subtract(const Duration(days: 3)),
+          merchant: 'Gas Station',
+        ),
+      ],
+      summary: 'Your spending for ${report.month} ${report.year} shows a total of ₹${(report.additionalData?['totalAmount'] ?? 10000.0).toStringAsFixed(2)} across ${report.additionalData?['totalTransactions'] ?? 40} transactions. Your highest spending category was Food & Dining, followed by Shopping and Bills & Utilities.',
+      additionalData: {
+        'averageTransactionAmount': 250.0,
+        'largestTransaction': 2500.0,
+        'mostFrequentCategory': 'Food & Dining',
+      },
+    );
+  }
+
+  Future<ReportDetailsModel> fetchReportDetails(String reportId) async {
+    // For now, return dummy data with a simulated delay
+    // Comment out the block below when API is ready
+    
+    print("Fetching report details for ID: $reportId (using dummy data)");
+    await Future.delayed(const Duration(seconds: 2)); // Simulate network delay
+    return _getDummyReportDetails(reportId);
+
+    /* Uncomment this block when backend API is ready:
+    
+    final url = Uri.parse('$backend/api/reports/$reportId');
+    final headers = {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer ${LocalStorage.getString('authToken')}",
+    };
+
+    try {
+      final response = await http.get(url, headers: headers);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return ReportDetailsModel.fromJson(data);
+      } else {
+        // If API fails, return dummy data as fallback
+        print('API returned ${response.statusCode}, using dummy data');
+        return _getDummyReportDetails(reportId);
+      }
+    } catch (e) {
+      // If any error occurs, return dummy data as fallback
+      print('Error fetching report details: $e, using dummy data');
+      return _getDummyReportDetails(reportId);
+    }
+    
+    */
+  }
 }
+

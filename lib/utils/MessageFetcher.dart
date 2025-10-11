@@ -47,6 +47,7 @@ class SmsService {
 
   static Future<List<Map<String, dynamic>>> fetchSms(DateTime fromDate) async {
     // Get SMS messages using your existing function
+    DateTime fromDate = DateTime(2025, 10, 1);
     List<SmsMessage> messages = await fetchSmsFromDate(fromDate);
 
     // Convert to JSON format using sms.date and filter out incomplete messages
@@ -74,7 +75,7 @@ class SmsService {
                 'date': formattedDate,
                 'transaction_type': transactionType,
                 'amount': amount,
-                'person_name': personName,
+                'merchant': personName,
                 'body': body,
               };
             })
@@ -89,9 +90,11 @@ class SmsService {
             )
             .toList();
 
+    print("==========================================================================");
     for (var data in jsonData) {
       print(data);
     }
+    print("==========================================================================");
     // if len of data is more than 0 then only send to the backend
     int answer = await sendMessageToBackEnd(jsonData);
     print("asnwer is ${answer}");
@@ -119,9 +122,8 @@ class SmsService {
     // "sent to NAME", "from NAME", "to NAME", "by NAME", "paid to NAME"
     
     final patterns = [
-      RegExp(r'(?:sent to|paid to|transferred to|to)\s+([A-Za-z\s]+?)(?:\s+on|\s+for|\s+via|\s+through|\.|,|\s+A\/c|\s+UPI|\s+account|$)', caseSensitive: false),
-      RegExp(r'(?:from|by|received from)\s+([A-Za-z\s]+?)(?:\s+on|\s+for|\s+via|\s+through|\.|,|\s+A\/c|\s+UPI|\s+account|$)', caseSensitive: false),
-      RegExp(r'(?:UPI-|VPA-)([A-Za-z\s]+?)(?:\s|@|-|$)', caseSensitive: false),
+      RegExp(r'from\s+([A-Za-z.\s]+?)(?:-|\(|$)', caseSensitive: false),
+      RegExp(r'for payee\s+([A-Za-z.\s]+?)\s+for\s+Rs', caseSensitive: false),
     ];
 
     for (var pattern in patterns) {

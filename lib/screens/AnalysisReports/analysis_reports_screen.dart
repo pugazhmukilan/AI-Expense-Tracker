@@ -2,6 +2,7 @@ import 'package:ai_expense/bloc/report_bloc.dart';
 import 'package:ai_expense/bloc/report_event.dart';
 import 'package:ai_expense/bloc/report_state.dart';
 import 'package:ai_expense/models/report_model.dart';
+import 'package:ai_expense/screens/AnalysisReports/report_details_screen.dart';
 import 'package:ai_expense/screens/AnalysisReports/widgets/empty_state_widget.dart';
 import 'package:ai_expense/screens/AnalysisReports/widgets/error_state_widget.dart';
 import 'package:ai_expense/screens/AnalysisReports/widgets/loading_state_widget.dart';
@@ -53,20 +54,15 @@ class _AnalysisReportsScreenState extends State<AnalysisReportsScreen> {
   }
 
   void _handleReportTap(ReportModel report) {
-    // TODO: Navigate to report details page with report.id
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Opening report for ${report.month} ${report.year}'),
-        backgroundColor: AppColors.primary,
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ReportDetailsScreen(
+          reportId: report.id,
+          reportTitle: '${report.month} ${report.year}',
+        ),
       ),
     );
-    // Future implementation:
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(
-    //     builder: (context) => ReportDetailsScreen(reportId: report.id),
-    //   ),
-    // );
   }
 
   @override
@@ -103,6 +99,15 @@ class _AnalysisReportsScreenState extends State<AnalysisReportsScreen> {
           ),
         ),
         child: BlocBuilder<ReportBloc, ReportState>(
+          buildWhen: (previous, current) {
+            // Only rebuild when state is relevant to reports list
+            // Ignore ReportDetails states
+            return current is ReportFetching ||
+                current is ReportFetched ||
+                current is ReportEmpty ||
+                current is ReportError ||
+                current is ReportInitial;
+          },
           builder: (context, state) {
             if (state is ReportFetching) {
               return LoadingStateWidget(
@@ -124,6 +129,7 @@ class _AnalysisReportsScreenState extends State<AnalysisReportsScreen> {
                 onRetry: _handleRefresh,
               );
             }
+            // This should only show briefly on initial load
             return const Center(
               child: CircularProgressIndicator(
                 color: AppColors.primary,
