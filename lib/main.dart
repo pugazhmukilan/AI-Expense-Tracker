@@ -1,5 +1,7 @@
 import 'package:ai_expense/bloc/message_bloc.dart';
+import 'package:ai_expense/bloc/report_bloc.dart';
 import 'package:ai_expense/bloc/spendings_bloc.dart';
+import 'package:ai_expense/repositories/report_repository.dart';
 import 'package:ai_expense/utils/transaction_summary_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,13 +18,15 @@ void main() async {
   await LocalStorage.init();
 
   final authRepo = AuthRepository();
+  final reportRepo = ReportRepository();
 
-  runApp(MyApp(authRepo: authRepo));
+  runApp(MyApp(authRepo: authRepo, reportRepo: reportRepo));
 }
 
 class MyApp extends StatelessWidget {
   final AuthRepository authRepo;
-  const MyApp({super.key, required this.authRepo});
+  final ReportRepository reportRepo;
+  const MyApp({super.key, required this.authRepo, required this.reportRepo});
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +39,9 @@ class MyApp extends StatelessWidget {
         BlocProvider(
           create:
               (_) => SpendingBloc(summaryService: TransactionSummaryService()),
+        ),
+        BlocProvider(
+          create: (_) => ReportBloc(reportRepository: reportRepo),
         ),
       ],
       child: MaterialApp(

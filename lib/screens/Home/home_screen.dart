@@ -8,6 +8,7 @@ import 'package:ai_expense/bloc/message_bloc.dart'
         MessageState,
         FetchMessage;
 import 'package:ai_expense/screens/amount_spendings.dart';
+import 'package:ai_expense/screens/AnalysisReports/analysis_reports_screen.dart';
 import 'package:ai_expense/screens/budget_screen.dart';
 import 'package:ai_expense/screens/login_or_sign_screen.dart'
     show LoginOrSignScreen;
@@ -72,15 +73,66 @@ class _HomeContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     String UserName = LocalStorage.getString('name') ?? "User";
-    return Container(
-      decoration: const BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage('assets/bg/crystalbg.png'),
-          fit: BoxFit.cover,
-        ),
-      ),
-      
+    return SafeArea(
       child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          toolbarHeight: 80,
+          animateColor: true,
+          flexibleSpace: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 2),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Hi ${UserName}!!',
+                          style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                            fontFamily: "Poppins",
+                            fontSize: 32,
+                            color: Colors.black,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Welcome back, you\'ve been missed!',
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontFamily: "Poppins",
+                            color: Colors.black,
+                          ),
+                        ),
+                      ],
+                    ),
+                    IconButton(
+                      icon: const Icon(
+                        Icons.logout,
+                        color: AppColors.primary,
+                        size: 28,
+                      ),
+                      onPressed: () {
+                        context.read<AuthBloc>().add(LogoutRequested());
+                        Navigator.of(context).pushAndRemoveUntil(
+                          MaterialPageRoute(
+                            builder: (_) => const LoginOrSignScreen(),
+                          ),
+                          (route) => false,
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
         floatingActionButton: FloatingActionButton(
           backgroundColor: AppColors.tertiary,
           child: const Icon(Icons.upload_file,color: AppColors.primary,),
@@ -91,61 +143,14 @@ class _HomeContent extends StatelessWidget {
         
         ),
         body: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 5),
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 20,),
-                    Text(
-                      'Hi ${UserName}!!',
-                      style: Theme.of(
-                        context,
-                      ).textTheme.headlineLarge?.copyWith(
-                        fontFamily: "Poppins",
-                        fontSize: 32,
-                        color: Colors.black,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Welcome back, you\'ve been missed!',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontFamily: "Poppins",
-                        color: Colors.black,
-                      ),
-                    ),
-                  ],
-                ),
-                IconButton(
-                  icon: const Icon(
-                    Icons.logout,
-                    color: AppColors.primary,
-                    size: 28,
-                  ),
-                  onPressed: () {
-                    context.read<AuthBloc>().add(LogoutRequested());
-                    Navigator.of(context).pushAndRemoveUntil(
-                      MaterialPageRoute(
-                        builder: (_) => const LoginOrSignScreen(),
-                      ),
-                      (route) => false,
-                    );
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
             BlocBuilder<MessageBloc,MessageState>(builder: (context, state) {
               if(state is MessageFetching){
                 return const Center(child: CircularProgressIndicator(color: Colors.green,));
               } else if (state is MessageFetched) {
                 return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 20.0),
+                  padding: const EdgeInsets.symmetric(vertical: 5.0),
                   child: Center(
                     child: Text(
                       "Message fetched successfully!",
@@ -162,7 +167,7 @@ class _HomeContent extends StatelessWidget {
             }),
             const SizedBox(height: 10),
            
-
+      
             _buildGlassmorphismContainer(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -190,7 +195,7 @@ class _HomeContent extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-
+      
             _buildGlassmorphismContainer(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -313,7 +318,7 @@ class _HomeContent extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-
+      
             Row(
               children: [
                 Expanded(
@@ -343,7 +348,7 @@ class _HomeContent extends StatelessWidget {
                           fontSize: 16,
                         ),
                         textAlign: TextAlign.center,
-
+      
                       ),
                     ),
                   ),
@@ -376,22 +381,55 @@ class _HomeContent extends StatelessWidget {
                           fontSize: 16,
                         ),
                          textAlign: TextAlign.center,
-
+      
                       ),
                     ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 24),
-
+            const SizedBox(height: 16),
+            Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const AnalysisReportsScreen(),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      backgroundColor: AppColors.tertiary,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      side: BorderSide(color: AppColors.onPrimary.withOpacity(0.5)),
+                    ),
+                    child: Center(
+                      child:  Text(
+                        'Analysis Reports',
+                        style: TextStyle(
+                          fontFamily: "Poppins",
+                          color: Colors.white,
+                          fontSize: 16,
+                        ),
+                        textAlign: TextAlign.center,
+      
+                      ),
+                    ),
+                  ),
+                ),
+            
+            const SizedBox(height: 16),
             GestureDetector(
               onTap: () async {
                 FilePickerResult? result = await FilePicker.platform.pickFiles(
                   type: FileType.custom,
                   allowedExtensions: ['pdf', 'jpg', 'png'],
                 );
-
+      
                 if (result != null && result.files.isNotEmpty) {
                   final file = result.files.first;
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -433,7 +471,7 @@ class _HomeContent extends StatelessWidget {
             const SizedBox(height: 24),
           ],
         ),
-
+      
         
       ),
     );

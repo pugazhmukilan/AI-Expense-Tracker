@@ -99,7 +99,7 @@ class SmsService {
     return jsonData;
   }
 
-  // Helper function to determine if it's debit or credit
+ 
   static String _determineTransactionType(String body) {
     String lowerBody = body.toLowerCase();
 
@@ -113,7 +113,7 @@ class SmsService {
     return 'unknown';
   }
 
-  // Helper function to extract person's name from SMS body
+  
   static String _extractPersonName(String body) {
     // Common patterns in transaction SMS:
     // "sent to NAME", "from NAME", "to NAME", "by NAME", "paid to NAME"
