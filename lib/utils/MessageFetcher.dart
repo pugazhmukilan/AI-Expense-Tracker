@@ -47,7 +47,7 @@ class SmsService {
 
   static Future<List<Map<String, dynamic>>> fetchSms(DateTime fromDate) async {
     // Get SMS messages using your existing function
-    DateTime fromDate = DateTime(2025, 10, 1);
+    //DateTime fromDate = DateTime(2025, 10, 1);
     List<SmsMessage> messages = await fetchSmsFromDate(fromDate);
 
     // Convert to JSON format using sms.date and filter out incomplete messages
@@ -65,13 +65,16 @@ class SmsService {
               final address = sms.address ?? '';
               final body = sms.body ?? '';
               final transactionType = _determineTransactionType(body);
-              final amountMatch = RegExp(r'(\d+[\.,]?\d*)').firstMatch(body);
+              // final amountMatch = RegExp(r'(\d+[\.,]?\d*)').firstMatch(body);
+              final amountMatch = RegExp(r'Rs\.?\s*(\d+[\.,]?\d*)').firstMatch(body);
               final amount = amountMatch?.group(1) ?? '';
               final personName = _extractPersonName(body);
+              final remarkMatch = RegExp(r'Payer Remark -\s*(.*)$').firstMatch(body);
+              final subject = remarkMatch != null ? remarkMatch.group(1)?.trim() ?? '' : '';
 
               return {
                 'address': address,
-                'subject': sms.subject ?? '',
+                'subject':subject,
                 'date': formattedDate,
                 'transaction_type': transactionType,
                 'amount': amount,

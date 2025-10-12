@@ -2,6 +2,11 @@ import 'package:ai_expense/bloc/message_bloc.dart';
 import 'package:ai_expense/bloc/report_bloc.dart';
 import 'package:ai_expense/bloc/spendings_bloc.dart';
 import 'package:ai_expense/repositories/report_repository.dart';
+import 'package:ai_expense/repositories/history_repository.dart';
+import 'package:ai_expense/repositories/monthly_details_repository.dart';
+import 'package:ai_expense/bloc/history_bloc.dart';
+import 'package:ai_expense/bloc/monthly_details_bloc.dart';
+import 'package:ai_expense/screens/History/history_screen.dart';
 import 'package:ai_expense/utils/transaction_summary_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,19 +24,35 @@ void main() async {
 
   final authRepo = AuthRepository();
   final reportRepo = ReportRepository();
+  final historyRepo = HistoryRepository();
+  final monthlyDetailsRepo = MonthlyDetailsRepository();
 
-  runApp(MyApp(authRepo: authRepo, reportRepo: reportRepo));
+  runApp(MyApp(
+    authRepo: authRepo,
+    reportRepo: reportRepo,
+    historyRepo: historyRepo,
+    monthlyDetailsRepo: monthlyDetailsRepo,
+  ));
 }
 
 class MyApp extends StatelessWidget {
   final AuthRepository authRepo;
   final ReportRepository reportRepo;
-  const MyApp({super.key, required this.authRepo, required this.reportRepo});
+  final HistoryRepository historyRepo;
+  final MonthlyDetailsRepository monthlyDetailsRepo;
+  
+  const MyApp({
+    super.key,
+    required this.authRepo,
+    required this.reportRepo,
+    required this.historyRepo,
+    required this.monthlyDetailsRepo,
+  });
 
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
-      providers: [
+  providers: [
         BlocProvider(
           create: (_) => AuthBloc(authRepo: authRepo)..add(AppStarted()),
         ),
@@ -43,12 +64,21 @@ class MyApp extends StatelessWidget {
         BlocProvider(
           create: (_) => ReportBloc(reportRepository: reportRepo),
         ),
+        BlocProvider(
+          create: (_) => HistoryBloc(historyRepository: historyRepo),
+        ),
+        BlocProvider(
+          create: (_) => MonthlyDetailsBloc(monthlyDetailsRepository: monthlyDetailsRepo),
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Modular BLoC Auth',
         theme: AppTheme.lightTheme,
         home: AppEntryPoint(),
+        routes: {
+          '/history': (context) => const HistoryScreen(),
+        },
       ),
     );
   }

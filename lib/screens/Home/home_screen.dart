@@ -73,407 +73,431 @@ class _HomeContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     String UserName = LocalStorage.getString('name') ?? "User";
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          toolbarHeight: 80,
-          animateColor: true,
-          flexibleSpace: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 2),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Hi ${UserName}!!',
-                          style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                            fontFamily: "Poppins",
-                            fontSize: 32,
-                            color: Colors.black,
-                            fontWeight: FontWeight.w500,
-                          ),
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: AppColors.primary,
+        elevation: 0,
+        toolbarHeight: 80,
+        animateColor: true,
+        flexibleSpace: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 2),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Hi ${UserName}!!',
+                        style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                          fontFamily: "Poppins",
+                          fontSize: 32,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Welcome back, you\'ve been missed!',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontFamily: "Poppins",
-                            color: Colors.black,
-                          ),
-                        ),
-                      ],
-                    ),
-                    IconButton(
-                      icon: const Icon(
-                        Icons.logout,
-                        color: AppColors.primary,
-                        size: 28,
                       ),
-                      onPressed: () {
-                        context.read<AuthBloc>().add(LogoutRequested());
-                        Navigator.of(context).pushAndRemoveUntil(
-                          MaterialPageRoute(
-                            builder: (_) => const LoginOrSignScreen(),
-                          ),
-                          (route) => false,
-                        );
-                      },
+                      const SizedBox(height: 4),
+                      Text(
+                        'Welcome back, you\'ve been missed!',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontFamily: "Poppins",
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                  IconButton(
+                    icon: const Icon(
+                      Icons.logout,
+                      color: Colors.white,
+                      size: 28,
                     ),
-                  ],
+                    onPressed: () {
+                      context.read<AuthBloc>().add(LogoutRequested());
+                      Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(
+                          builder: (_) => const LoginOrSignScreen(),
+                        ),
+                        (route) => false,
+                      );
+                    },
+                  ),
+                ],
+              ),
+              SizedBox(height:5),
+            ],
+          ),
+        ),
+        // ...existing code...
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: AppColors.tertiary,
+        child: const Icon(Icons.upload_file,color: AppColors.primary,),
+        onPressed: () {
+          context.read<MessageBloc>().add(FetchMessage());
+        },
+        
+      
+      ),
+      body: ListView(
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 5),
+        children: [
+          BlocBuilder<MessageBloc,MessageState>(builder: (context, state) {
+            if(state is MessageFetching){
+              return const Center(child: CircularProgressIndicator(color: Colors.green,));
+            } else if (state is MessageFetched) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 5.0),
+                child: Center(
+                  child: Text(
+                    "Message fetched successfully!",
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontFamily: "Poppins",
+                      color: Colors.green,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              );
+            }
+            return const SizedBox();
+          }),
+          const SizedBox(height: 10),
+         
+    
+          _buildGlassmorphismContainer(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const [
+                Text(
+                  'Monthly Expenses',
+                  style: TextStyle(
+                    fontFamily: "Poppins",
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  '₹ 2,456.70',
+                  style: TextStyle(
+                    fontFamily: "Poppins",
+                    color: Colors.white,
+                    fontSize: 32,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ],
             ),
           ),
-        ),
-        floatingActionButton: FloatingActionButton(
-          backgroundColor: AppColors.tertiary,
-          child: const Icon(Icons.upload_file,color: AppColors.primary,),
-          onPressed: () {
-            context.read<MessageBloc>().add(FetchMessage());
-          },
-          
-        
-        ),
-        body: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 5),
-          children: [
-            BlocBuilder<MessageBloc,MessageState>(builder: (context, state) {
-              if(state is MessageFetching){
-                return const Center(child: CircularProgressIndicator(color: Colors.green,));
-              } else if (state is MessageFetched) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 5.0),
-                  child: Center(
-                    child: Text(
-                      "Message fetched successfully!",
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontFamily: "Poppins",
-                        color: Colors.green,
-                        fontSize: 16,
-                      ),
-                    ),
+          const SizedBox(height: 24),
+    
+          _buildGlassmorphismContainer(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Spending Chart',
+                  style: TextStyle(
+                    fontFamily: "Poppins",
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.w500,
                   ),
-                );
-              }
-              return const SizedBox();
-            }),
-            const SizedBox(height: 10),
-           
-      
-            _buildGlassmorphismContainer(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text(
-                    'Monthly Expenses',
-                    style: TextStyle(
-                      fontFamily: "Poppins",
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    '₹ 2,456.70',
-                    style: TextStyle(
-                      fontFamily: "Poppins",
-                      color: Colors.white,
-                      fontSize: 32,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-      
-            _buildGlassmorphismContainer(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Spending Chart',
-                    style: TextStyle(
-                      fontFamily: "Poppins",
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  SizedBox(
-                    height: 200,
-                    child: BarChart(
-                      BarChartData(
-                        alignment: BarChartAlignment.spaceAround,
-                        maxY: 10000,
-                        gridData: const FlGridData(show: false),
-                        titlesData: FlTitlesData(
-                          leftTitles: AxisTitles(
-                            sideTitles: SideTitles(
-                              showTitles: true,
-                              reservedSize: 50,
-                              getTitlesWidget: (value, meta) {
-                                return SideTitleWidget(
-                                  meta: meta,
-                                  space: 8,
-                                  child: Text(
-                                    '₹${value.toInt()}',
-                                    style: const TextStyle(
-                                      fontFamily: "Poppins",
-                                      color: Colors.white,
-                                      fontSize: 10,
-                                    ),
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  height: 200,
+                  child: BarChart(
+                    BarChartData(
+                      alignment: BarChartAlignment.spaceAround,
+                      maxY: 10000,
+                      gridData: const FlGridData(show: false),
+                      titlesData: FlTitlesData(
+                        leftTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            reservedSize: 50,
+                            getTitlesWidget: (value, meta) {
+                              return SideTitleWidget(
+                                meta: meta,
+                                space: 8,
+                                child: Text(
+                                  '₹${value.toInt()}',
+                                  style: const TextStyle(
+                                    fontFamily: "Poppins",
+                                    color: Colors.white,
+                                    fontSize: 10,
                                   ),
-                                );
-                              },
-                            ),
-                          ),
-                          rightTitles: const AxisTitles(
-                            sideTitles: SideTitles(showTitles: false),
-                          ),
-                          topTitles: const AxisTitles(
-                            sideTitles: SideTitles(showTitles: false),
-                          ),
-                          bottomTitles: AxisTitles(
-                            sideTitles: SideTitles(
-                              showTitles: true,
-                              reservedSize: 20,
-                              getTitlesWidget: (value, meta) {
-                                const style = TextStyle(
-                                  fontFamily: "Poppins",
-                                  color: AppColors.onPrimary,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
-                                );
-                                String text;
-                                switch (value.toInt()) {
-                                  case 0:
-                                    text = 'Jan';
-                                    break;
-                                  case 1:
-                                    text = 'Feb';
-                                    break;
-                                  case 2:
-                                    text = 'Mar';
-                                    break;
-                                  case 3:
-                                    text = 'Apr';
-                                    break;
-                                  case 4:
-                                    text = 'May';
-                                    break;
-                                  case 5:
-                                    text = 'Jun';
-                                    break;
-                                  default:
-                                    text = '';
-                                    break;
-                                }
-                                return SideTitleWidget(
-                                  meta: meta,
-                                  space: 4,
-                                  child: Text(text, style: style),
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                        borderData: FlBorderData(show: false),
-                        barGroups: [
-                          makeGroupData(0, 3500),
-                          makeGroupData(1, 6000),
-                          makeGroupData(2, 7500),
-                          makeGroupData(3, 4000),
-                          makeGroupData(4, 8500),
-                          makeGroupData(5, 5500),
-                        ],
-                        barTouchData: BarTouchData(
-                          touchTooltipData: BarTouchTooltipData(
-                            getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                              return BarTooltipItem(
-                                '₹${rod.toY.toStringAsFixed(0)}',
-                                const TextStyle(
-                                  fontFamily: "Poppins",
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
                                 ),
                               );
                             },
                           ),
                         ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-      
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => AmountSpendingsScreen(),
+                        rightTitles: const AxisTitles(
+                          sideTitles: SideTitles(showTitles: false),
                         ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: AppColors.tertiary,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      side: BorderSide(color: AppColors.onPrimary.withOpacity(0.5)),
-                    ),
-                    child: Center(
-                      child:  Text(
-                        'View Amount Spent',
-                        style: TextStyle(
-                          fontFamily: "Poppins",
-                          color: Colors.white,
-                          fontSize: 16,
+                        topTitles: const AxisTitles(
+                          sideTitles: SideTitles(showTitles: false),
                         ),
-                        textAlign: TextAlign.center,
-      
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const ViewBudgetScreen(),
+                        bottomTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            reservedSize: 20,
+                            getTitlesWidget: (value, meta) {
+                              const style = TextStyle(
+                                fontFamily: "Poppins",
+                                color: AppColors.onPrimary,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                              );
+                              String text;
+                              switch (value.toInt()) {
+                                case 0:
+                                  text = 'Jan';
+                                  break;
+                                case 1:
+                                  text = 'Feb';
+                                  break;
+                                case 2:
+                                  text = 'Mar';
+                                  break;
+                                case 3:
+                                  text = 'Apr';
+                                  break;
+                                case 4:
+                                  text = 'May';
+                                  break;
+                                case 5:
+                                  text = 'Jun';
+                                  break;
+                                default:
+                                  text = '';
+                                  break;
+                              }
+                              return SideTitleWidget(
+                                meta: meta,
+                                space: 4,
+                                child: Text(text, style: style),
+                              );
+                            },
+                          ),
                         ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: AppColors.primary,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
                       ),
-                      side: BorderSide(color: AppColors.onPrimary.withOpacity(0.5)),
-                    ),
-                    child: Center(
-                      child:  Text(
-                        'View Budget Details',
-                        style: TextStyle(
-                          fontFamily: "Poppins",
-                          color: Colors.white,
-                          fontSize: 16,
+                      borderData: FlBorderData(show: false),
+                      barGroups: [
+                        makeGroupData(0, 3500),
+                        makeGroupData(1, 6000),
+                        makeGroupData(2, 7500),
+                        makeGroupData(3, 4000),
+                        makeGroupData(4, 8500),
+                        makeGroupData(5, 5500),
+                      ],
+                      barTouchData: BarTouchData(
+                        touchTooltipData: BarTouchTooltipData(
+                          getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                            return BarTooltipItem(
+                              '₹${rod.toY.toStringAsFixed(0)}',
+                              const TextStyle(
+                                fontFamily: "Poppins",
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            );
+                          },
                         ),
-                         textAlign: TextAlign.center,
-      
                       ),
                     ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 16),
-            Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const AnalysisReportsScreen(),
-                        ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: AppColors.tertiary,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+          ),
+          const SizedBox(height: 24),
+    
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => AmountSpendingsScreen(),
                       ),
-                      side: BorderSide(color: AppColors.onPrimary.withOpacity(0.5)),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    backgroundColor: AppColors.tertiary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
                     ),
-                    child: Center(
-                      child:  Text(
-                        'Analysis Reports',
-                        style: TextStyle(
-                          fontFamily: "Poppins",
-                          color: Colors.white,
-                          fontSize: 16,
-                        ),
-                        textAlign: TextAlign.center,
-      
-                      ),
-                    ),
+                    side: BorderSide(color: AppColors.onPrimary.withOpacity(0.5)),
                   ),
-                ),
-            
-            const SizedBox(height: 16),
-            GestureDetector(
-              onTap: () async {
-                FilePickerResult? result = await FilePicker.platform.pickFiles(
-                  type: FileType.custom,
-                  allowedExtensions: ['pdf', 'jpg', 'png'],
-                );
-      
-                if (result != null && result.files.isNotEmpty) {
-                  final file = result.files.first;
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("Picked file: ${file.name}")),
-                  );
-                }
-              },
-              child: DottedBorder(
-                borderType: BorderType.RRect,
-                radius: const Radius.circular(16),
-                dashPattern: const [8, 4],
-                color: AppColors.primary,
-                child: SizedBox(
-                  height: 100,
-                  width: double.infinity,
                   child: Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        Icon(
-                          Icons.add_circle_outline,
-                          color: AppColors.primary,
-                        ),
-                        SizedBox(width: 8),
-                        Text(
-                          "Add a bank statement",
-                          style: TextStyle(
-                            fontFamily: "Poppins",
-                            color: Colors.black,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
+                    child:  Text(
+                      'View Amount Spent',
+                      style: TextStyle(
+                        fontFamily: "Poppins",
+                        color: Colors.white,
+                        fontSize: 16,
+                      ),
+                      textAlign: TextAlign.center,
+    
                     ),
                   ),
                 ),
               ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ViewBudgetScreen(),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    backgroundColor: AppColors.primary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    side: BorderSide(color: AppColors.onPrimary.withOpacity(0.5)),
+                  ),
+                  child: Center(
+                    child:  Text(
+                      'View Budget Details',
+                      style: TextStyle(
+                        fontFamily: "Poppins",
+                        color: Colors.white,
+                        fontSize: 16,
+                      ),
+                       textAlign: TextAlign.center,
+    
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Expanded(
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AnalysisReportsScreen(),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                backgroundColor: AppColors.tertiary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                side: BorderSide(color: AppColors.onPrimary.withOpacity(0.5)),
+              ),
+              child: Center(
+                child: Text(
+                  'Analysis Reports',
+                  style: TextStyle(
+                    fontFamily: "Poppins",
+                    color: Colors.white,
+                    fontSize: 16,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
             ),
-            const SizedBox(height: 24),
-          ],
-        ),
-      
-        
+          ),
+          const SizedBox(height: 16),
+          Expanded(
+            child: ElevatedButton.icon(
+              onPressed: () {
+                Navigator.of(context).pushNamed('/history');
+              },
+              icon: Icon(Icons.history, color: Colors.white),
+              label: Text(
+                'Transaction History',
+                style: TextStyle(
+                  fontFamily: "Poppins",
+                  color: Colors.white,
+                  fontSize: 16,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                backgroundColor: AppColors.primary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                side: BorderSide(color: AppColors.onPrimary.withOpacity(0.5)),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          GestureDetector(
+            onTap: () async {
+              FilePickerResult? result = await FilePicker.platform.pickFiles(
+                type: FileType.custom,
+                allowedExtensions: ['pdf', 'jpg', 'png'],
+              );
+    
+              if (result != null && result.files.isNotEmpty) {
+                final file = result.files.first;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("Picked file: ${file.name}")),
+                );
+              }
+            },
+            child: DottedBorder(
+              borderType: BorderType.RRect,
+              radius: const Radius.circular(16),
+              dashPattern: const [8, 4],
+              color: AppColors.primary,
+              child: SizedBox(
+                height: 100,
+                width: double.infinity,
+                child: Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Icon(
+                        Icons.add_circle_outline,
+                        color: AppColors.primary,
+                      ),
+                      SizedBox(width: 8),
+                      Text(
+                        "Add a bank statement",
+                        style: TextStyle(
+                          fontFamily: "Poppins",
+                          color: Colors.black,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+        ],
       ),
+    
+      
     );
   }
 
