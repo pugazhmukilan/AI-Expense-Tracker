@@ -390,38 +390,38 @@ class _HomeContent extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          Expanded(
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const AnalysisReportsScreen(),
-                  ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                backgroundColor: AppColors.tertiary,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                side: BorderSide(color: AppColors.onPrimary.withOpacity(0.5)),
-              ),
-              child: Center(
-                child: Text(
-                  'Analysis Reports',
-                  style: TextStyle(
-                    fontFamily: "Poppins",
-                    color: Colors.white,
-                    fontSize: 16,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
+          // Expanded(
+          //   child: ElevatedButton(
+          //     onPressed: () {
+          //       Navigator.push(
+          //         context,
+          //         MaterialPageRoute(
+          //           builder: (context) => const AnalysisReportsScreen(),
+          //         ),
+          //       );
+          //     },
+          //     style: ElevatedButton.styleFrom(
+          //       padding: const EdgeInsets.symmetric(vertical: 16),
+          //       backgroundColor: AppColors.tertiary,
+          //       shape: RoundedRectangleBorder(
+          //         borderRadius: BorderRadius.circular(16),
+          //       ),
+          //       side: BorderSide(color: AppColors.onPrimary.withOpacity(0.5)),
+          //     ),
+          //     child: Center(
+          //       child: Text(
+          //         'Analysis Reports',
+          //         style: TextStyle(
+          //           fontFamily: "Poppins",
+          //           color: Colors.white,
+          //           fontSize: 16,
+          //         ),
+          //         textAlign: TextAlign.center,
+          //       ),
+          //     ),
+          //   ),
+          // ),
+          //const SizedBox(height: 16),
           Expanded(
             child: ElevatedButton.icon(
               onPressed: () {
