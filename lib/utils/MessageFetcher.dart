@@ -120,29 +120,119 @@ class SmsService {
   }
 
   
-  static String _extractPersonName(String body) {
-    // Common patterns in transaction SMS:
-    // "sent to NAME", "from NAME", "to NAME", "by NAME", "paid to NAME"
+  // static String _extractPersonName(String body) {
+  //   // Common patterns in transaction SMS:
+  //   // "sent to NAME", "from NAME", "to NAME", "by NAME", "paid to NAME"
     
-    final patterns = [
-      RegExp(r'from\s+([A-Za-z.\s]+?)(?:-|\(|$)', caseSensitive: false),
-      RegExp(r'for payee\s+([A-Za-z.\s]+?)\s+for\s+Rs', caseSensitive: false),
+  //   final patterns = [
+  //     RegExp(r'from\s+([A-Za-z.\s]+?)(?:-|\(|$)', caseSensitive: false),
+  //     RegExp(r'for payee\s+([A-Za-z.\s]+?)\s+for\s+Rs', caseSensitive: false),
+  //   ];
+
+  //   for (var pattern in patterns) {
+  //     final match = pattern.firstMatch(body);
+  //     if (match != null && match.groupCount >= 1) {
+  //       String name = match.group(1)?.trim() ?? '';
+  //       // Clean up the name - remove extra spaces and common suffixes
+  //       name = name.replaceAll(RegExp(r'\s+'), ' ').trim();
+  //       if (name.isNotEmpty && name.length > 1) {
+  //         return name;
+  //       }
+  //     }
+  //   }
+
+  //   return 'Unknown';
+  // }
+
+  static String _extractPersonName(String body) {
+    // 1. Prioritized Patterns for Payee/Payer (Entity associated with the name)
+    final prioritizedPatterns = [
+        // Pattern 1: Credit message - finds the entity *after* "from" or "by a/c linked to VPA"
+        // Captures: "from HEMANTH KUMAR K R-" or "by a/c linked to VPA hemanthsiva2022@okaxis"
+        RegExp(r'(?:from|by a/c linked to VPA)\s+([A-Za-z\s.\-]+?)(?:-|@|\(|UPI|Ref|is credited|credited|$)', caseSensitive: false),
+        
+        // Pattern 2: Debit message - finds the entity *after* "for payee"
+        // Captures: "for payee Mr Jotham Emmanuel Cheeran for Rs." or "for payee Anu__Foods"
+        RegExp(r'for payee\s+([A-Za-z\s_]+?)\s+for\s+Rs', caseSensitive: false),
+        
+        // Pattern 3: Debit message - finds the entity *after* "debited for payee"
+        RegExp(r'debited for payee\s+([A-Za-z\s_]+?)\s+for\s+Rs', caseSensitive: false),
+
+        // Pattern 4: Debit/Credit message from Indian/ICICI Bank. Finds entity *after* "to" (for debit) or "from" (for credit).
+        // Captures: "debited Rs. 30.00 on DATE to KOMMURI BHUPATHI."
+        // Captures: "credited with Rs 10.00 on DATE from PUGAZHMUKILAN J."
+        RegExp(r'(?:to|from)\s+([A-Za-z\s]+?)\.?(?:\s*UPI|credited|debited|$)', caseSensitive: false),
+        
+        // Pattern 5: Google Pay money request - finds the entity *before* "has requested money"
+        // Captures: "CHENNAI METRO RAIL LTD has requested" or "IRCTC CF has requested"
+        RegExp(r'^body\d+:\s*([A-Za-z0-9\s]+?)\s+has requested money', caseSensitive: false),
+        
+        // Pattern 6: Google Pay request, simplified - finds the entity *before* "has requested" or "requested"
+        // Captures: "IRCTC CF has requested"
+        RegExp(r'^body\d+:\s*([A-Za-z0-9\s]+?)\s+requested money|has requested', caseSensitive: false),
+
+        // Pattern 7: Direct payment/transfer name. Finds name before "credited" or "debited" and after a number/currency.
+        // Captures: "ICICI Bank Acct XX240 debited for Rs 1.00 on 16-Oct-25; jotham05cheeran credited."
+        RegExp(r';\s*([A-Za-z0-9]+)\s+credited', caseSensitive: false),
+        
+        // Pattern 8: Debit/Credit - find entity after "to" or "from" but before UPI/Not you. (for Indian Bank specifically)
+        // Captures: "A/c *4293 debited Rs. 30.00 on 15-10-25 to KOMMURI BHUPATHI. UPI:..."
+        RegExp(r'(?:to|from)\s+([A-Za-z\s]+?)\.\s+UPI', caseSensitive: false),
+        
+        // Pattern 9: Generic "paid to" pattern from the user's remark examples (body 1571)
+        RegExp(r'Paid to\s+([A-Za-z\s]+)', caseSensitive: false),
     ];
+    
+    // 2. Fallback pattern for VPA extraction
+    final vpaFallback = RegExp(r'VPA\s+([a-zA-Z0-9.\-]+?)(?:@)', caseSensitive: false);
 
-    for (var pattern in patterns) {
-      final match = pattern.firstMatch(body);
-      if (match != null && match.groupCount >= 1) {
-        String name = match.group(1)?.trim() ?? '';
-        // Clean up the name - remove extra spaces and common suffixes
-        name = name.replaceAll(RegExp(r'\s+'), ' ').trim();
-        if (name.isNotEmpty && name.length > 1) {
-          return name;
+    for (var pattern in prioritizedPatterns) {
+        final match = pattern.firstMatch(body);
+        if (match != null && match.groupCount >= 1) {
+            String name = match.group(1)?.trim() ?? '';
+            // Clean up name: remove common punctuation/symbols/prefixes/suffixes
+            name = name.replaceAll(RegExp(r'[\s.!@#$,;]+'), ' ').trim();
+            name = name.replaceAll(RegExp(r'^(Mr|Ms|Dr)\s+', caseSensitive: false), '').trim();
+            // Capitalize if it looks like a VPA part that got caught
+            if (name.contains(RegExp(r'^[a-z]+[0-9]+$', caseSensitive: false))) {
+                 name = name.toUpperCase();
+            }
+            
+            // Filter out clearly unwanted matches
+            if (name.isNotEmpty && name.length > 2 && !name.contains(RegExp(r'A/c|Acct|no\.', caseSensitive: false))) {
+                return name;
+            }
         }
-      }
     }
+    
+    // Fallback to extract entity from VPA if a name couldn't be found
+    final vpaMatch = vpaFallback.firstMatch(body);
+    if (vpaMatch != null && vpaMatch.groupCount >= 1) {
+        String vpaPart = vpaMatch.group(1)?.trim() ?? '';
+        // Often the VPA part is the name, sometimes with a number suffix.
+        if (vpaPart.isNotEmpty && vpaPart.length > 2) {
+             // Heuristic: If it contains mixed case/numbers, format it nicely.
+             // E.g., 'jotham05cheeran' -> 'JOTHAM05CHEERAN'
+             if (vpaPart.contains(RegExp(r'[0-9]')) || vpaPart.contains(RegExp(r'[A-Z]'))) {
+                 vpaPart = vpaPart.toUpperCase();
+             }
+             return vpaPart;
+        }
+    }
+    
+    // Final check for the common but less precise pattern in case others fail
+     final simplePattern = RegExp(r'from\s+([A-Za-z.\s]+?)(?:-|\(|$)', caseSensitive: false);
+     final simpleMatch = simplePattern.firstMatch(body);
+     if (simpleMatch != null && simpleMatch.groupCount >= 1) {
+         String name = simpleMatch.group(1)?.trim() ?? '';
+         name = name.replaceAll(RegExp(r'\s+'), ' ').trim();
+         if (name.isNotEmpty && name.length > 1 && !name.contains(RegExp(r'SBI|IOB|ICICI', caseSensitive: false))) {
+              return name;
+         }
+     }
 
-    return 'Unknown';
-  }
+    return 'Unknown Entity';
+}
 
   static Future<int> sendMessageToBackEnd(
     List<Map<String, dynamic>> messages,
