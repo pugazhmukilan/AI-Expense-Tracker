@@ -4,7 +4,8 @@ import 'package:ai_expense/theme/app_theme.dart';
 
 class YearlySummaryWidget extends StatelessWidget {
   final YearlySummaryModel summary;
-  const YearlySummaryWidget({Key? key, required this.summary}) : super(key: key);
+  const YearlySummaryWidget({Key? key, required this.summary})
+    : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -42,7 +43,10 @@ class YearlySummaryWidget extends StatelessWidget {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.tertiary,
                   borderRadius: BorderRadius.circular(20),

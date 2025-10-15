@@ -29,7 +29,6 @@ class SmsService {
         SmsColumn.BODY,
         SmsColumn.DATE,
         SmsColumn.SUBJECT,
-        
       ],
       filter: filter,
       sortOrder: [OrderBy(SmsColumn.DATE, sort: Sort.ASC)],
@@ -66,15 +65,20 @@ class SmsService {
               final body = sms.body ?? '';
               final transactionType = _determineTransactionType(body);
               // final amountMatch = RegExp(r'(\d+[\.,]?\d*)').firstMatch(body);
-              final amountMatch = RegExp(r'Rs\.?\s*(\d+[\.,]?\d*)').firstMatch(body);
+              final amountMatch = RegExp(
+                r'Rs\.?\s*(\d+[\.,]?\d*)',
+              ).firstMatch(body);
               final amount = amountMatch?.group(1) ?? '';
               final personName = _extractPersonName(body);
-              final remarkMatch = RegExp(r'Payer Remark -\s*(.*)$').firstMatch(body);
-              final subject = remarkMatch != null ? remarkMatch.group(1)?.trim() ?? '' : '';
+              final remarkMatch = RegExp(
+                r'Payer Remark -\s*(.*)$',
+              ).firstMatch(body);
+              final subject =
+                  remarkMatch != null ? remarkMatch.group(1)?.trim() ?? '' : '';
 
               return {
                 'address': address,
-                'subject':subject,
+                'subject': subject,
                 'date': formattedDate,
                 'transaction_type': transactionType,
                 'amount': amount,
@@ -93,11 +97,15 @@ class SmsService {
             )
             .toList();
 
-    print("==========================================================================");
+    print(
+      "==========================================================================",
+    );
     for (var data in jsonData) {
       print(data);
     }
-    print("==========================================================================");
+    print(
+      "==========================================================================",
+    );
     // if len of data is more than 0 then only send to the backend
     int answer = await sendMessageToBackEnd(jsonData);
     print("asnwer is ${answer}");
@@ -105,7 +113,6 @@ class SmsService {
     return jsonData;
   }
 
- 
   static String _determineTransactionType(String body) {
     String lowerBody = body.toLowerCase();
 
@@ -119,11 +126,10 @@ class SmsService {
     return 'unknown';
   }
 
-  
   // static String _extractPersonName(String body) {
   //   // Common patterns in transaction SMS:
   //   // "sent to NAME", "from NAME", "to NAME", "by NAME", "paid to NAME"
-    
+
   //   final patterns = [
   //     RegExp(r'from\s+([A-Za-z.\s]+?)(?:-|\(|$)', caseSensitive: false),
   //     RegExp(r'for payee\s+([A-Za-z.\s]+?)\s+for\s+Rs', caseSensitive: false),

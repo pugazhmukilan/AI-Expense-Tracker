@@ -1,64 +1,61 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:http/http.dart';
+import 'package:ai_expense/utils/local_storage.dart'; // 1. ADD THIS IMPORT
 import 'package:http/http.dart' as http;
 
-
 class AuthRepository {
-  // Simulate network calls. Replace with real API.
+  final String loginUrl =
+      'https://capestone-backend-1-q0hb.onrender.com/api/auth/login';
+  final String registerUrl =
+      'https://capestone-backend-1-q0hb.onrender.com/api/auth/register';
 
-  // Real endpoints (port 8000)
-  final String loginUrl = 'https://capestone-backend-1-q0hb.onrender.com/api/auth/login';
-  final String registerUrl = 'https://capestone-backend-1-q0hb.onrender.com/api/auth/register';
-
-  //TODO: all authentication logic should be implemented here using API
-  
   Future<List> login(String email, String password) async {
-    await Future.delayed(const Duration(seconds: 2));
-    final response = await http.post(Uri.parse(loginUrl),
-    headers: {"Content-Type": "application/json"},
-    body:jsonEncode({'email': email, 'password': password}));
-    print(response.statusCode);
-    print(response.body);
+    final response = await http.post(
+      Uri.parse(loginUrl),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({'email': email, 'password': password}),
+    );
+
+    print('Login Status Code: ${response.statusCode}');
+    print('Login Response Body: ${response.body}');
+
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-        return [
-          data['token'],        // token
-          data['user']['name'], // username
-          data['user']['email'] // email
-        ];
+      final String token = data['token'];
+      final String name = data['user']['name'];
+      final String userEmail = data['user']['email'];
+
+      // 2. SAVE THE TOKEN AND USER'S NAME
+      await LocalStorage.setString('token', token);
+      await LocalStorage.setString('name', name);
+
+      return [token, name, userEmail];
     }
     throw Exception('Invalid email or password');
-
-    
-    // await Future.delayed(const Duration(seconds: 2));
-    // // Fake validation
-    // if (email == 'test@example.com' && password == 'password') {
-    //   return 'fake_token_123';
-    // }
-    // throw Exception('Invalid email or password');
   }
 
   Future<List> signup(String name, String email, String password) async {
-    await Future.delayed(const Duration(seconds: 2));
-    final response = await http.post(Uri.parse(registerUrl),
-    headers: {"Content-Type": "application/json"},
-     body:jsonEncode({'name':name,'email': email, 'password': password}) );
-     print(response.statusCode);
+    final response = await http.post(
+      Uri.parse(registerUrl),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({'name': name, 'email': email, 'password': password}),
+    );
+
+    print('Signup Status Code: ${response.statusCode}');
+
     if (response.statusCode == 201) {
       final data = jsonDecode(response.body);
-        return [
-          data['token'],        // token
-          data['user']['name'], // username
-          data['user']['email'] // email
-        ];
+      final String token = data['token'];
+      final String userName = data['user']['name'];
+      final String userEmail = data['user']['email'];
+
+      // 3. ALSO SAVE THE TOKEN ON SIGNUP
+      await LocalStorage.setString('token', token);
+      await LocalStorage.setString('name', userName);
+      print("im here==========================");
+
+      return [token, userName, userEmail];
     }
     throw Exception('Signup failed');
-    // await Future.delayed(const Duration(seconds: 2));
-    // // In real app check duplicates
-    // if (email.contains('@')) {
-    //   return 'fake_signup_token_456';
-    // }
-    // throw Exception('Signup failed');
   }
 }
