@@ -1,3 +1,4 @@
+import 'package:ai_expense/bloc/home_summary_bloc.dart';
 import 'package:ai_expense/bloc/message_bloc.dart';
 import 'package:ai_expense/bloc/monthly_chart_bloc.dart';
 import 'package:ai_expense/bloc/report_bloc.dart';
@@ -82,6 +83,12 @@ class MyApp extends StatelessWidget {
         BlocProvider(
           create:
               (_) => MonthlyChartBloc(monthlyChartRepository: monthlyChartRepo),
+        ),
+        BlocProvider(
+          create:
+              (_) => HomeSummaryBloc(
+                monthlyDetailsRepository: monthlyDetailsRepo,
+              ),
         ),
       ],
       child: MaterialApp(

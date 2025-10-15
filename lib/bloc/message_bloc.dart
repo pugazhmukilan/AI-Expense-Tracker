@@ -17,18 +17,18 @@ class MessageBloc extends Bloc<MessageEvent, MessageState> {
           LocalStorage.getString("lastdate") == null) {
         // Create a date that is 120 days before now
         DateTime twoMonthsAgo = DateTime.now().subtract(
-          const Duration(days: 120),
+          const Duration(days: 60),
         );
         print("Date is null");
         print(twoMonthsAgo.toString());
         await LocalStorage.setString("lastdate", twoMonthsAgo.toString());
       }
-      // DateTime lastDate = DateTime.parse(
-      //   LocalStorage.getString("lastdate").toString(),
-      // );
+      DateTime lastDate = DateTime.parse(
+        LocalStorage.getString("lastdate").toString(),
+      );
 
-      DateTime lastDate = DateTime.now().subtract(const Duration(days: 140));
-
+      //DateTime lastDate = DateTime.now().subtract(const Duration(days: 140));
+      print("User token is " + LocalStorage.getString("token").toString());
       print("Last date is " + lastDate.toString());
 
       List<Map<String, dynamic>> messages = await SmsService.fetchSms(lastDate);

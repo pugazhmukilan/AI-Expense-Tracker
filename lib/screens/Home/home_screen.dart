@@ -1,6 +1,8 @@
-import 'dart:ffi';
 import 'dart:math'; // NEW IMPORT
 import 'dart:ui';
+import 'package:ai_expense/bloc/home_summary_bloc.dart';
+import 'package:ai_expense/bloc/home_summary_event.dart';
+import 'package:ai_expense/bloc/home_summary_state.dart';
 import 'package:ai_expense/bloc/message_bloc.dart'
     show
         MessageBloc,
@@ -8,8 +10,6 @@ import 'package:ai_expense/bloc/message_bloc.dart'
         MessageFetching,
         MessageState,
         FetchMessage;
-import 'package:ai_expense/bloc/monthly_details_event.dart';
-import 'package:ai_expense/bloc/monthly_details_state.dart';
 import 'package:ai_expense/screens/AmountSpendings/amount_spendings.dart';
 import 'package:ai_expense/screens/budget_screen.dart';
 import 'package:ai_expense/screens/login_or_sign_screen.dart'
@@ -29,7 +29,6 @@ import '../../../bloc/auth_bloc.dart';
 import '../../../bloc/monthly_chart_bloc.dart'; // NEW IMPORT
 import '../../../bloc/monthly_chart_event.dart'; // NEW IMPORT
 import '../../../bloc/monthly_chart_state.dart'; // NEW IMPORT
-import '../../../bloc/monthly_details_bloc.dart';
 import '../../../models/monthly_details_model.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -88,9 +87,9 @@ class _HomeContentState extends State<_HomeContent> {
   void initState() {
     super.initState();
     final now = DateTime.now();
-    // Fetch data for the top summary card
-    context.read<MonthlyDetailsBloc>().add(
-      FetchMonthlyDetails(month: now.month, year: now.year),
+    // Fetch data for the top summary card using HomeSummaryBloc
+    context.read<HomeSummaryBloc>().add(
+      FetchHomeSummary(month: now.month, year: now.year),
     );
     // NEW: Fetch data for the bar chart
     context.read<MonthlyChartBloc>().add(FetchMonthlyChartData());
@@ -229,57 +228,55 @@ class _HomeContentState extends State<_HomeContent> {
     IconData icon,
     Color color,
   ) {
-    return Flexible(
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.2),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, color: color, size: 20),
-            const SizedBox(width: 8),
-            Flexible(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    label,
-                    style: const TextStyle(
-                      fontFamily: "Poppins",
-                      fontSize: 16,
-                      color: Colors.white,
-                    ),
-                    overflow: TextOverflow.ellipsis,
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: color, size: 20),
+          const SizedBox(width: 8),
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontFamily: "Poppins",
+                    fontSize: 16,
+                    color: Colors.white,
                   ),
-                  Text(
-                    '₹$amt',
-                    style: const TextStyle(
-                      fontFamily: "Poppins",
-                      fontSize: 12,
-                      color: Colors.white70,
-                      fontWeight: FontWeight.w400,
-                    ),
-                    overflow: TextOverflow.ellipsis,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  '₹$amt',
+                  style: const TextStyle(
+                    fontFamily: "Poppins",
+                    fontSize: 12,
+                    color: Colors.white70,
+                    fontWeight: FontWeight.w400,
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    '$value transactions',
-                    style: const TextStyle(
-                      fontFamily: "Poppins",
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white60,
-                    ),
-                    overflow: TextOverflow.ellipsis,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '$value transactions',
+                  style: const TextStyle(
+                    fontFamily: "Poppins",
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white60,
                   ),
-                ],
-              ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -365,8 +362,9 @@ class _HomeContentState extends State<_HomeContent> {
         onPressed: () {
           context.read<MessageBloc>().add(FetchMessage());
           final now = DateTime.now();
-          context.read<MonthlyDetailsBloc>().add(
-            FetchMonthlyDetails(month: now.month, year: now.year),
+          // Refresh home summary using HomeSummaryBloc
+          context.read<HomeSummaryBloc>().add(
+            FetchHomeSummary(month: now.month, year: now.year),
           );
           context.read<MonthlyChartBloc>().add(
             FetchMonthlyChartData(),
@@ -402,12 +400,12 @@ class _HomeContentState extends State<_HomeContent> {
           ),
           const SizedBox(height: 10),
 
-          // This section remains unchanged from your code
-          BlocBuilder<MonthlyDetailsBloc, MonthlyDetailsState>(
+          // Monthly Summary Card - now using HomeSummaryBloc
+          BlocBuilder<HomeSummaryBloc, HomeSummaryState>(
             builder: (context, state) {
-              if (state is MonthlyDetailsLoading) {
+              if (state is HomeSummaryLoading) {
                 return _buildSkeletonMonthlySummary(); // Replace CircularProgressIndicator
-              } else if (state is MonthlyDetailsLoaded) {
+              } else if (state is HomeSummaryLoaded) {
                 if (state.monthlyDetails.allTransactions.isEmpty) {
                   return _buildGlassmorphismContainer(
                     child: const Center(
@@ -484,7 +482,7 @@ class _HomeContentState extends State<_HomeContent> {
                         ),
                   ],
                 );
-              } else if (state is MonthlyDetailsError) {
+              } else if (state is HomeSummaryError) {
                 return const Center(child: Text("Error loading transactions."));
               }
               return const SizedBox.shrink();
