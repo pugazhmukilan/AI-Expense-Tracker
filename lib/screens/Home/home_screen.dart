@@ -229,49 +229,57 @@ class _HomeContentState extends State<_HomeContent> {
     IconData icon,
     Color color,
   ) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, color: color, size: 20),
-          const SizedBox(width: 8),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: const TextStyle(
-                  fontFamily: "Poppins",
-                  fontSize: 16,
-                  color: Colors.white,
-                ),
+    return Flexible(
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.2),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: color, size: 20),
+            const SizedBox(width: 8),
+            Flexible(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: const TextStyle(
+                      fontFamily: "Poppins",
+                      fontSize: 16,
+                      color: Colors.white,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    '₹$amt',
+                    style: const TextStyle(
+                      fontFamily: "Poppins",
+                      fontSize: 12,
+                      color: Colors.white70,
+                      fontWeight: FontWeight.w400,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '$value transactions',
+                    style: const TextStyle(
+                      fontFamily: "Poppins",
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white60,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
               ),
-              Text(
-                '₹$amt',
-                style: const TextStyle(
-                  fontFamily: "Poppins",
-                  fontSize: 12,
-                  color: Colors.white70,
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                '$value transactions',
-                style: const TextStyle(
-                  fontFamily: "Poppins",
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white60,
-                ),
-              ),
-            ],
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }

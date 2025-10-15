@@ -15,19 +15,19 @@ class MessageBloc extends Bloc<MessageEvent, MessageState> {
 
       if (LocalStorage.getString("lastdate") == "" ||
           LocalStorage.getString("lastdate") == null) {
-        // Create a date that is 60 days before now
+        // Create a date that is 120 days before now
         DateTime twoMonthsAgo = DateTime.now().subtract(
-          const Duration(days: 60),
+          const Duration(days: 120),
         );
         print("Date is null");
         print(twoMonthsAgo.toString());
         await LocalStorage.setString("lastdate", twoMonthsAgo.toString());
       }
-      DateTime lastDate = DateTime.parse(
-        LocalStorage.getString("lastdate").toString(),
-      );
+      // DateTime lastDate = DateTime.parse(
+      //   LocalStorage.getString("lastdate").toString(),
+      // );
 
-      //DateTime lastDate = DateTime.now().subtract(const Duration(days: 60));
+      DateTime lastDate = DateTime.now().subtract(const Duration(days: 140));
 
       print("Last date is " + lastDate.toString());
 
