@@ -3,7 +3,6 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import '../repositories/auth_repository.dart';
 
-
 part 'auth_event.dart';
 part 'auth_state.dart';
 
@@ -32,31 +31,37 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     // not first time - check token
     final token = LocalStorage.getString('authToken');
     if (token != null && token.isNotEmpty) {
-      emit(AuthAuthenticatedState(token: token));//if we dont have aauth token in the shared prefderence  then it should go to lgin page
+      emit(
+        AuthAuthenticatedState(token: token),
+      ); //if we dont have aauth token in the shared prefderence  then it should go to lgin page
 
       return;
     }
 
-    emit(AuthUnauthenticatedState());//if it has authenticated token then it should go to home page
+    emit(
+      AuthUnauthenticatedState(),
+    ); //if it has authenticated token then it should go to home page
   }
 
-  Future<void> _onCompleteWelcome(CompleteWelcomeEvent event, Emitter<AuthState> emit) async {
+  Future<void> _onCompleteWelcome(
+    CompleteWelcomeEvent event,
+    Emitter<AuthState> emit,
+  ) async {
     await LocalStorage.setBool('firstTimeUser', false);
     emit(AuthUnauthenticatedState());
   }
 
-  Future<void> _onLoginRequested(LoginRequested event, Emitter<AuthState> emit) async {
+  Future<void> _onLoginRequested(
+    LoginRequested event,
+    Emitter<AuthState> emit,
+  ) async {
     emit(AuthLoadingState(action: AuthAction.login));
     try {
       final token = await authRepo.login(event.email, event.password);
       await LocalStorage.setString('authToken', token[0]);
       await LocalStorage.setString('name', token[1]);
       await LocalStorage.setString('email', token[2]);
-    
-   
 
-
-     
       emit(AuthAuthenticatedState(token: token[0]));
     } catch (e) {
       print(e.toString());
@@ -65,13 +70,23 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-  Future<void> _onSignupRequested(SignupRequested event, Emitter<AuthState> emit) async {
+  Future<void> _onSignupRequested(
+    SignupRequested event,
+    Emitter<AuthState> emit,
+  ) async {
     emit(AuthLoadingState(action: AuthAction.signup));
     try {
-      final token = await authRepo.signup(event.name, event.email, event.password);
+      final token = await authRepo.signup(
+        event.name,
+        event.email,
+        event.password,
+      );
       await LocalStorage.setString('authToken', token[0]);
       await LocalStorage.setString('name', token[1]);
       await LocalStorage.setString('email', token[2]);
+      // DateTime twoMonthsAgo = DateTime.now().subtract(const Duration(days: 60));
+      await LocalStorage.setString("lastdate", "");
+      print("last date updated to double quotes");
       emit(AuthAuthenticatedState(token: token[0]));
     } catch (e) {
       emit(AuthFailureState(message: e.toString()));
@@ -79,7 +94,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-  Future<void> _onLogoutRequested(LogoutRequested event, Emitter<AuthState> emit) async {
+  Future<void> _onLogoutRequested(
+    LogoutRequested event,
+    Emitter<AuthState> emit,
+  ) async {
     emit(AuthLoadingState(action: AuthAction.logout));
     await LocalStorage.remove('authToken');
     // After logout go to LoginOrSign

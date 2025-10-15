@@ -7,7 +7,8 @@ import 'package:ai_expense/theme/app_theme.dart';
 class CategoryListWidget extends StatelessWidget {
   final MonthlyDetailsModel monthlyDetails;
 
-  const CategoryListWidget({Key? key, required this.monthlyDetails}) : super(key: key);
+  const CategoryListWidget({Key? key, required this.monthlyDetails})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -66,26 +67,28 @@ class _CategoryExpansionTileState extends State<CategoryExpansionTile> {
 
   Future<void> _loadCategoryDetails() async {
     if (_categoryData != null) return; // Already loaded
-    
+
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
 
     try {
-      print('Loading category details for: ${widget.categoryName}, Month: ${widget.month}, Year: ${widget.year}');
-      
+      print(
+        'Loading category details for: ${widget.categoryName}, Month: ${widget.month}, Year: ${widget.year}',
+      );
+
       final data = await _repository.fetchCategoryDetails(
         category: widget.categoryName,
         month: widget.month,
         year: widget.year,
       );
-      
+
       print('Received data: ${data != null ? "Success" : "Null"}');
       if (data != null) {
         print('Merchant breakdown count: ${data.merchantBreakdown.length}');
       }
-      
+
       setState(() {
         _categoryData = data;
         _isLoading = false;
@@ -141,7 +144,10 @@ class _CategoryExpansionTileState extends State<CategoryExpansionTile> {
             height: 50,
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [AppColors.tertiary, AppColors.tertiary.withOpacity(0.7)],
+                colors: [
+                  AppColors.tertiary,
+                  AppColors.tertiary.withOpacity(0.7),
+                ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -190,7 +196,9 @@ class _CategoryExpansionTileState extends State<CategoryExpansionTile> {
               ),
               const SizedBox(width: 8),
               Icon(
-                _isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                _isExpanded
+                    ? Icons.keyboard_arrow_up
+                    : Icons.keyboard_arrow_down,
                 color: AppColors.onPrimary,
               ),
             ],
@@ -198,56 +206,61 @@ class _CategoryExpansionTileState extends State<CategoryExpansionTile> {
           children: [
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: _isLoading
-                  ? const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(16.0),
-                        child: CircularProgressIndicator(color: AppColors.primary),
-                      ),
-                    )
-                  : _errorMessage != null
+              child:
+                  _isLoading
+                      ? const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(16.0),
+                          child: CircularProgressIndicator(
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      )
+                      : _errorMessage != null
                       ? Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              children: [
-                                Icon(
-                                  Icons.error_outline,
-                                  color: Colors.grey[400],
-                                  size: 48,
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            children: [
+                              Icon(
+                                Icons.error_outline,
+                                color: Colors.grey[400],
+                                size: 48,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                _errorMessage!,
+                                style: const TextStyle(
+                                  fontFamily: "Poppins",
+                                  color: Colors.grey,
+                                  fontSize: 14,
                                 ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  _errorMessage!,
-                                  style: const TextStyle(
-                                    fontFamily: "Poppins",
-                                    color: Colors.grey,
-                                    fontSize: 14,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ],
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                      : _categoryData == null ||
+                          _categoryData!.merchantBreakdown.isEmpty
+                      ? const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(16.0),
+                          child: Text(
+                            'No merchants found',
+                            style: TextStyle(
+                              fontFamily: "Poppins",
+                              color: Colors.grey,
                             ),
                           ),
-                        )
-                      : _categoryData == null || _categoryData!.merchantBreakdown.isEmpty
-                          ? const Center(
-                              child: Padding(
-                                padding: EdgeInsets.all(16.0),
-                                child: Text(
-                                  'No merchants found',
-                                  style: TextStyle(
-                                    fontFamily: "Poppins",
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                              ),
-                            )
-                          : Column(
-                              children: _categoryData!.merchantBreakdown.map((merchant) {
-                                return _buildMerchantTile(merchant);
-                              }).toList(),
-                            ),
+                        ),
+                      )
+                      : Column(
+                        children:
+                            _categoryData!.merchantBreakdown.map((merchant) {
+                              return _buildMerchantTile(merchant);
+                            }).toList(),
+                      ),
             ),
           ],
         ),
@@ -322,11 +335,11 @@ class _CategoryExpansionTileState extends State<CategoryExpansionTile> {
               ),
             ],
           ),
-          
+
           const SizedBox(height: 16),
           const Divider(height: 1, color: AppColors.onPrimary),
           const SizedBox(height: 16),
-          
+
           // Amount Breakdown
           Row(
             children: [
@@ -391,9 +404,9 @@ class _CategoryExpansionTileState extends State<CategoryExpansionTile> {
                   ),
                 ),
               ),
-              
+
               const SizedBox(width: 12),
-              
+
               // Received from merchant (Credited)
               Expanded(
                 child: Container(
@@ -462,4 +475,3 @@ class _CategoryExpansionTileState extends State<CategoryExpansionTile> {
     );
   }
 }
-

@@ -1,4 +1,5 @@
 import 'package:ai_expense/bloc/message_bloc.dart';
+import 'package:ai_expense/bloc/monthly_chart_bloc.dart';
 import 'package:ai_expense/bloc/report_bloc.dart';
 import 'package:ai_expense/bloc/spendings_bloc.dart';
 import 'package:ai_expense/repositories/report_repository.dart';
@@ -17,6 +18,7 @@ import 'screens/login_or_sign_screen.dart';
 import 'screens/Home/home_screen.dart';
 import 'theme/app_theme.dart';
 import 'utils/local_storage.dart';
+import 'package:ai_expense/repositories/monthly_chart_repository.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,13 +28,17 @@ void main() async {
   final reportRepo = ReportRepository();
   final historyRepo = HistoryRepository();
   final monthlyDetailsRepo = MonthlyDetailsRepository();
+  final monthlyChartRepo = MonthlyChartRepository();
 
-  runApp(MyApp(
-    authRepo: authRepo,
-    reportRepo: reportRepo,
-    historyRepo: historyRepo,
-    monthlyDetailsRepo: monthlyDetailsRepo,
-  ));
+  runApp(
+    MyApp(
+      authRepo: authRepo,
+      reportRepo: reportRepo,
+      historyRepo: historyRepo,
+      monthlyDetailsRepo: monthlyDetailsRepo,
+      monthlyChartRepo: monthlyChartRepo,
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -40,19 +46,21 @@ class MyApp extends StatelessWidget {
   final ReportRepository reportRepo;
   final HistoryRepository historyRepo;
   final MonthlyDetailsRepository monthlyDetailsRepo;
-  
+  final MonthlyChartRepository monthlyChartRepo;
+
   const MyApp({
     super.key,
     required this.authRepo,
     required this.reportRepo,
     required this.historyRepo,
     required this.monthlyDetailsRepo,
+    required this.monthlyChartRepo,
   });
 
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
-  providers: [
+      providers: [
         BlocProvider(
           create: (_) => AuthBloc(authRepo: authRepo)..add(AppStarted()),
         ),
@@ -61,14 +69,19 @@ class MyApp extends StatelessWidget {
           create:
               (_) => SpendingBloc(summaryService: TransactionSummaryService()),
         ),
-        BlocProvider(
-          create: (_) => ReportBloc(reportRepository: reportRepo),
-        ),
+        BlocProvider(create: (_) => ReportBloc(reportRepository: reportRepo)),
         BlocProvider(
           create: (_) => HistoryBloc(historyRepository: historyRepo),
         ),
         BlocProvider(
-          create: (_) => MonthlyDetailsBloc(monthlyDetailsRepository: monthlyDetailsRepo),
+          create:
+              (_) => MonthlyDetailsBloc(
+                monthlyDetailsRepository: monthlyDetailsRepo,
+              ),
+        ),
+        BlocProvider(
+          create:
+              (_) => MonthlyChartBloc(monthlyChartRepository: monthlyChartRepo),
         ),
       ],
       child: MaterialApp(
@@ -76,9 +89,7 @@ class MyApp extends StatelessWidget {
         title: 'Modular BLoC Auth',
         theme: AppTheme.lightTheme,
         home: AppEntryPoint(),
-        routes: {
-          '/history': (context) => const HistoryScreen(),
-        },
+        routes: {'/history': (context) => const HistoryScreen()},
       ),
     );
   }
