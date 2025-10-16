@@ -15,6 +15,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<LoginRequested>(_onLoginRequested);
     on<SignupRequested>(_onSignupRequested);
     on<LogoutRequested>(_onLogoutRequested);
+    on<DeleteAccountRequested>(_onDeleteAccountRequested);
   }
 
   Future<void> _onAppStarted(AppStarted event, Emitter<AuthState> emit) async {
@@ -102,6 +103,29 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     await LocalStorage.remove('authToken');
     // After logout go to LoginOrSign
     emit(AuthUnauthenticatedState());
+  }
+
+  Future<void> _onDeleteAccountRequested(
+    DeleteAccountRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(AuthLoadingState(action: AuthAction.logout));
+    try {
+      await authRepo.deleteAccount();
+      // Clear all local storage
+      await LocalStorage.remove('authToken');
+      await LocalStorage.remove('name');
+      await LocalStorage.remove('email');
+      await LocalStorage.remove('lastdate');
+      // After deleting account, go to LoginOrSign
+      emit(AuthUnauthenticatedState());
+    } catch (e) {
+      print('Delete account error: ${e.toString()}');
+      emit(AuthFailureState(message: 'Failed to delete account: ${e.toString()}'));
+      // Still logout locally even if API call fails
+      await LocalStorage.remove('authToken');
+      emit(AuthUnauthenticatedState());
+    }
   }
 }
 

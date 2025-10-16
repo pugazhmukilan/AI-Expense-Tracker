@@ -83,6 +83,9 @@ class _HomeContent extends StatefulWidget {
 }
 
 class _HomeContentState extends State<_HomeContent> {
+  // Chart view state: 'total', 'debited', 'credited'
+  String _chartView = 'total';
+
   @override
   void initState() {
     super.initState();
@@ -95,7 +98,7 @@ class _HomeContentState extends State<_HomeContent> {
     context.read<MonthlyChartBloc>().add(FetchMonthlyChartData());
   }
 
-  // This function remains unchanged from your provided code
+  // This function displays the monthly summary card
   Widget _buildMerchantTile(
     TransactionSummary summary,
     dynamic monthlyDetails,
@@ -160,7 +163,7 @@ class _HomeContentState extends State<_HomeContent> {
             ],
           ),
           const SizedBox(height: 16),
-          // Amount Row
+          // Amount Row - Shows total debited amount
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
@@ -191,14 +194,14 @@ class _HomeContentState extends State<_HomeContent> {
             ],
           ),
           const SizedBox(height: 16),
-          // Stat Cards Row - Using Expanded for equal distribution
+          // Stat Cards Row - Shows debited and credited amounts from API
           Row(
             children: [
               Expanded(
                 child: _buildStatCard(
                   'Debited',
                   '${monthlyDetails.monthlyStats.totalDebited}',
-                  '${summary.totalDebited}',
+                  '${monthlyDetails.totalSpent.toStringAsFixed(2)}',
                   Icons.arrow_upward,
                   AppColors.tertiary,
                 ),
@@ -208,7 +211,7 @@ class _HomeContentState extends State<_HomeContent> {
                 child: _buildStatCard(
                   'Credited',
                   '${monthlyDetails.monthlyStats.totalCredited}',
-                  '${summary.totalCredited}',
+                  '${monthlyDetails.totalCredited.toStringAsFixed(2)}',
                   Icons.arrow_downward,
                   Colors.green,
                 ),
@@ -290,6 +293,21 @@ class _HomeContentState extends State<_HomeContent> {
         elevation: 0,
         toolbarHeight: 80,
         animateColor: true,
+        automaticallyImplyLeading: false,
+        actions: [
+          Builder(
+            builder: (context) => IconButton(
+              icon: const Icon(
+                Icons.menu,
+                color: Colors.white,
+                size: 28,
+              ),
+              onPressed: () {
+                Scaffold.of(context).openDrawer();
+              },
+            ),
+          ),
+        ],
         flexibleSpace: Container(
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 2),
           child: Column(
@@ -333,22 +351,6 @@ class _HomeContentState extends State<_HomeContent> {
                       ],
                     ),
                   ),
-                  IconButton(
-                    icon: const Icon(
-                      Icons.logout,
-                      color: Colors.white,
-                      size: 28,
-                    ),
-                    onPressed: () {
-                      context.read<AuthBloc>().add(LogoutRequested());
-                      Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(
-                          builder: (_) => const LoginOrSignScreen(),
-                        ),
-                        (route) => false,
-                      );
-                    },
-                  ),
                 ],
               ),
               const SizedBox(height: 5),
@@ -356,6 +358,7 @@ class _HomeContentState extends State<_HomeContent> {
           ),
         ),
       ),
+      drawer: _buildDrawer(context),
       floatingActionButton: FloatingActionButton(
         backgroundColor: AppColors.tertiary,
         child: const Icon(Icons.upload_file, color: AppColors.primary),
@@ -527,9 +530,25 @@ class _HomeContentState extends State<_HomeContent> {
                   );
                 }
 
-                double maxYValue = state.spendingData
-                    .map((d) => d.totalSpent)
-                    .reduce(max);
+                // Calculate maxYValue based on selected view
+                double maxYValue;
+                switch (_chartView) {
+                  case 'debited':
+                    maxYValue = state.spendingData
+                        .map((d) => d.debitedAmount)
+                        .reduce(max);
+                    break;
+                  case 'credited':
+                    maxYValue = state.spendingData
+                        .map((d) => d.creditedAmount)
+                        .reduce(max);
+                    break;
+                  case 'total':
+                  default:
+                    maxYValue = state.spendingData
+                        .map((d) => d.totalSpent)
+                        .reduce(max);
+                }
 
                 if (maxYValue < 100) {
                   maxYValue = 100;
@@ -537,20 +556,51 @@ class _HomeContentState extends State<_HomeContent> {
                   maxYValue *= 1.2;
                 }
 
-                return _buildGlassmorphismContainer(
+                return _buildChartContainer(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Chart title
                       const Text(
-                        'Spending Chart',
+                        'Transaction Chart',
                         style: TextStyle(
                           fontFamily: "Poppins",
-                          color: Colors.white,
+                          color: AppColors.primary,
                           fontSize: 24,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 16),
+                      // Toggle buttons - full width with spacing
+                      Center(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withOpacity(0.08),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              _buildChartToggleButton(
+                                'Total',
+                                'total',
+                                Icons.bar_chart,
+                              ),
+                              _buildChartToggleButton(
+                                'Debited',
+                                'debited',
+                                Icons.arrow_upward,
+                              ),
+                              _buildChartToggleButton(
+                                'Credited',
+                                'credited',
+                                Icons.arrow_downward,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
                       SizedBox(
                         height: 200,
                         child: BarChart(
@@ -582,8 +632,9 @@ class _HomeContentState extends State<_HomeContent> {
                                         text,
                                         style: const TextStyle(
                                           fontFamily: "Poppins",
-                                          color: Colors.white,
+                                          color: Colors.black87,
                                           fontSize: 10,
+                                          fontWeight: FontWeight.w500,
                                         ),
                                       ),
                                     );
@@ -619,9 +670,9 @@ class _HomeContentState extends State<_HomeContent> {
                                         shortMonthName, // Use the short name here
                                         style: const TextStyle(
                                           fontFamily: "Poppins",
-                                          color: AppColors.onPrimary,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 14,
+                                          color: Colors.black87,
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 13,
                                         ),
                                       ),
                                     );
@@ -634,9 +685,29 @@ class _HomeContentState extends State<_HomeContent> {
                                 state.spendingData.asMap().entries.map((entry) {
                                   final index = entry.key;
                                   final dataPoint = entry.value;
+                                  
+                                  // Get the appropriate value and color based on selected view
+                                  double barValue;
+                                  Color barColor;
+                                  switch (_chartView) {
+                                    case 'debited':
+                                      barValue = dataPoint.debitedAmount;
+                                      barColor = Colors.red.shade400; // Red for spending
+                                      break;
+                                    case 'credited':
+                                      barValue = dataPoint.creditedAmount;
+                                      barColor = Colors.green.shade400; // Green
+                                      break;
+                                    case 'total':
+                                    default:
+                                      barValue = dataPoint.totalSpent;
+                                      barColor = AppColors.tertiary.withOpacity(0.8); // Default
+                                  }
+                                  
                                   return makeGroupData(
                                     index,
-                                    dataPoint.totalSpent,
+                                    barValue,
+                                    barColor,
                                   );
                                 }).toList(),
                             barTouchData: BarTouchData(
@@ -649,8 +720,27 @@ class _HomeContentState extends State<_HomeContent> {
                                 ) {
                                   final monthData =
                                       state.spendingData[group.x.toInt()];
+                                  
+                                  // Get the appropriate label and value based on selected view
+                                  String label;
+                                  double value;
+                                  switch (_chartView) {
+                                    case 'debited':
+                                      label = 'Debited';
+                                      value = monthData.debitedAmount;
+                                      break;
+                                    case 'credited':
+                                      label = 'Credited';
+                                      value = monthData.creditedAmount;
+                                      break;
+                                    case 'total':
+                                    default:
+                                      label = 'Total';
+                                      value = monthData.totalSpent;
+                                  }
+                                  
                                   return BarTooltipItem(
-                                    '${monthData.monthName}\n₹${monthData.totalSpent.toStringAsFixed(0)}',
+                                    '${monthData.monthName}\n$label: ₹${value.toStringAsFixed(0)}',
                                     const TextStyle(
                                       fontFamily: "Poppins",
                                       color: Colors.white,
@@ -821,6 +911,65 @@ class _HomeContentState extends State<_HomeContent> {
     );
   }
 
+  Widget _buildChartToggleButton(String label, String value, IconData icon) {
+    final isSelected = _chartView == value;
+    return InkWell(
+      onTap: () {
+        setState(() {
+          _chartView = value;
+        });
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: isSelected 
+              ? AppColors.primary
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 13,
+              color: isSelected ? Colors.white : Colors.black54,
+            ),
+            const SizedBox(width: 3),
+            Text(
+              label,
+              style: TextStyle(
+                fontFamily: "Poppins",
+                color: isSelected ? Colors.white : Colors.black54,
+                fontSize: 10,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildChartContainer({required Widget child}) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            spreadRadius: 0,
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: child,
+    );
+  }
+
   Widget _buildGlassmorphismContainer({required Widget child}) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
@@ -956,15 +1105,215 @@ class _HomeContentState extends State<_HomeContent> {
       ),
     );
   }
+
+  Widget _buildDrawer(BuildContext context) {
+    String userName = LocalStorage.getString('name') ?? "User";
+    String userEmail = LocalStorage.getString('email') ?? "";
+
+    return Drawer(
+      backgroundColor: AppColors.primary,
+      child: Column(
+        children: [
+          // Drawer Header
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.only(top: 50, bottom: 20, left: 20, right: 20),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [AppColors.tertiary, AppColors.tertiary.withOpacity(0.8)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CircleAvatar(
+                  radius: 40,
+                  backgroundColor: Colors.white,
+                  child: Text(
+                    userName.isNotEmpty ? userName[0].toUpperCase() : "U",
+                    style: const TextStyle(
+                      fontSize: 36,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.tertiary,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  userName,
+                  style: const TextStyle(
+                    fontFamily: "Poppins",
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  userEmail,
+                  style: const TextStyle(
+                    fontFamily: "Poppins",
+                    fontSize: 14,
+                    color: Colors.white70,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          // Logout Option
+          ListTile(
+            leading: const Icon(
+              Icons.logout,
+              color: Colors.white,
+              size: 26,
+            ),
+            title: const Text(
+              'Logout',
+              style: TextStyle(
+                fontFamily: "Poppins",
+                fontSize: 18,
+                color: Colors.white,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            onTap: () {
+              Navigator.of(context).pop(); // Close drawer
+              context.read<AuthBloc>().add(LogoutRequested());
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(
+                  builder: (_) => const LoginOrSignScreen(),
+                ),
+                (route) => false,
+              );
+            },
+          ),
+          const Divider(
+            color: Colors.white24,
+            thickness: 1,
+            indent: 20,
+            endIndent: 20,
+          ),
+          // Delete Account Option
+          ListTile(
+            leading: const Icon(
+              Icons.delete_forever,
+              color: Colors.redAccent,
+              size: 26,
+            ),
+            title: const Text(
+              'Delete Account',
+              style: TextStyle(
+                fontFamily: "Poppins",
+                fontSize: 18,
+                color: Colors.redAccent,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            onTap: () {
+              Navigator.of(context).pop(); // Close drawer
+              _showDeleteConfirmationDialog(context);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDeleteConfirmationDialog(BuildContext context) {
+    // Capture the AuthBloc before showing the dialog
+    final authBloc = context.read<AuthBloc>();
+    
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          backgroundColor: AppColors.primary,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: const Row(
+            children: [
+              Icon(Icons.warning_amber_rounded, color: Colors.redAccent, size: 28),
+              SizedBox(width: 12),
+              Text(
+                'Delete Account',
+                style: TextStyle(
+                  fontFamily: "Poppins",
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          content: const Text(
+            'Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently deleted.',
+            style: TextStyle(
+              fontFamily: "Poppins",
+              color: Colors.white70,
+              fontSize: 16,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop(); // Close dialog
+              },
+              child: const Text(
+                'Cancel',
+                style: TextStyle(
+                  fontFamily: "Poppins",
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop(); // Close dialog
+                // Delete account using the captured authBloc
+                authBloc.add(DeleteAccountRequested());
+                // Navigate to login screen
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(
+                    builder: (_) => const LoginOrSignScreen(),
+                  ),
+                  (route) => false,
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.redAccent,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text(
+                'Delete',
+                style: TextStyle(
+                  fontFamily: "Poppins",
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
 }
 
-BarChartGroupData makeGroupData(int x, double y) {
+BarChartGroupData makeGroupData(int x, double y, Color color) {
   return BarChartGroupData(
     x: x,
     barRods: [
       BarChartRodData(
         toY: y,
-        color: AppColors.tertiary.withOpacity(0.8),
+        color: color,
         width: 18,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
       ),

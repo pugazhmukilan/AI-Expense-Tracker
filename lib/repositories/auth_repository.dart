@@ -8,6 +8,8 @@ class AuthRepository {
       'https://capestone-backend-1-q0hb.onrender.com/api/auth/login';
   final String registerUrl =
       'https://capestone-backend-1-q0hb.onrender.com/api/auth/register';
+  final String deleteUrl =
+      'https://capestone-backend-1-q0hb.onrender.com/api/auth/delete';
 
   Future<List> login(String email, String password) async {
     final response = await http.post(
@@ -57,5 +59,29 @@ class AuthRepository {
       return [token, userName, userEmail];
     }
     throw Exception('Signup failed');
+  }
+
+  Future<void> deleteAccount() async {
+    final token = await LocalStorage.getString('authToken');
+    
+    if (token == null || token.isEmpty) {
+      throw Exception('No authentication token found');
+    }
+
+    final response = await http.delete(
+      Uri.parse(deleteUrl),
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      },
+    );
+
+    print('Delete Account Status Code: ${response.statusCode}');
+    print('Delete Account Response Body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      return;
+    }
+    throw Exception('Failed to delete account');
   }
 }

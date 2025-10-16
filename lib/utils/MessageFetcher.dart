@@ -243,27 +243,74 @@ class SmsService {
   static Future<int> sendMessageToBackEnd(
     List<Map<String, dynamic>> messages,
   ) async {
+    print('\n');
+    print('╔════════════════════════════════════════════════════════════════════════════╗');
+    print('║                     HOME PAGE - MESSAGE BATCH API CALL                     ║');
+    print('╚════════════════════════════════════════════════════════════════════════════╝');
+    print('📱 Processing SMS Messages');
+    print('📊 Total Messages to Send: ${messages.length}');
+    print('🔗 Endpoint: /api/transactions/batch');
+    
     final url = Uri.parse('${backend}/api/transactions/batch');
+    final token = LocalStorage.getString('authToken');
+    
+    if (token == null) {
+      print('❌ ERROR: Authentication token not found');
+      print('╚════════════════════════════════════════════════════════════════════════════╝\n');
+      return 401;
+    }
+    
+    print('✅ Auth Token Found: ${token.substring(0, 20)}...');
+    
     final headers = {
       "Content-Type": "application/json",
-      "Authorization": "Bearer ${LocalStorage.getString('authToken')}",
+      "Authorization": "Bearer $token",
     };
 
-    final body = jsonEncode(messages); // send as array
-    print("sending the message to the backend " + body);
+    final body = jsonEncode(messages);
+    
+    print('\n📤 REQUEST PAYLOAD:');
+    print('├─ Number of Transactions: ${messages.length}');
+    print('├─ Sample Transactions (showing first 3):');
+    
+    for (var i = 0; i < (messages.length > 3 ? 3 : messages.length); i++) {
+      print('│  ├─ Transaction ${i + 1}:');
+      print('│  │  ├─ Merchant: ${messages[i]['merchant']}');
+      print('│  │  ├─ Amount: ${messages[i]['amount']}');
+      print('│  │  ├─ Type: ${messages[i]['transaction_type']}');
+      print('│  │  ├─ Date: ${messages[i]['date']}');
+      print('│  │  └─ Address: ${messages[i]['address']}');
+    }
+    
+    if (messages.length > 3) {
+      print('│  └─ ... and ${messages.length - 3} more transactions');
+    }
+    
+    print('│');
+    print('🚀 Making API Request to: $url');
+    
     try {
       final response = await http.post(url, headers: headers, body: body);
 
+      print('\n📥 API RESPONSE RECEIVED:');
+      print('├─ Status Code: ${response.statusCode}');
+
       if (response.statusCode == 200) {
-        print('Messages sent successfully');
+        print('├─ Status: ✅ SUCCESS');
+        print('├─ Response Body: ${response.body}');
+        print('└─ ✅ Messages Sent Successfully to Backend');
+        print('╚════════════════════════════════════════════════════════════════════════════╝\n');
       } else {
-        print('Failed to send messages. Status code: ${response.statusCode}');
-        print('Response body: ${response.body}');
+        print('├─ Status: ❌ ERROR (${response.statusCode})');
+        print('├─ Response Body: ${response.body}');
+        print('└─ Failed to send messages');
+        print('╚════════════════════════════════════════════════════════════════════════════╝\n');
       }
 
       return response.statusCode;
     } catch (error) {
-      print('Error sending messages: $error');
+      print('└─ ❌ EXCEPTION OCCURRED: $error');
+      print('╚════════════════════════════════════════════════════════════════════════════╝\n');
       return 500;
     }
   }

@@ -86,7 +86,7 @@ class MonthlySummaryWidget extends StatelessWidget {
               const Padding(
                 padding: EdgeInsets.only(bottom: 6),
                 child: Text(
-                  'spent',
+                  'in total',
                   style: TextStyle(
                     fontFamily: "Poppins",
                     fontSize: 14,
@@ -97,13 +97,14 @@ class MonthlySummaryWidget extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          // Stat Cards Row - Using Expanded for equal distribution
+          // Stat Cards Row - Shows debited and credited amounts
           Row(
             children: [
               Expanded(
                 child: _buildStatCard(
                   'Debited',
                   '${monthlyDetails.monthlyStats.totalDebited}',
+                  '${monthlyDetails.totalSpent.toStringAsFixed(2)}',
                   Icons.arrow_upward,
                   AppColors.tertiary,
                 ),
@@ -113,6 +114,7 @@ class MonthlySummaryWidget extends StatelessWidget {
                 child: _buildStatCard(
                   'Credited',
                   '${monthlyDetails.monthlyStats.totalCredited}',
+                  '${monthlyDetails.totalCredited.toStringAsFixed(2)}',
                   Icons.arrow_downward,
                   Colors.green,
                 ),
@@ -124,7 +126,13 @@ class MonthlySummaryWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildStatCard(String label, String value, IconData icon, Color color) {
+  Widget _buildStatCard(
+    String label,
+    String value,
+    String amt,
+    IconData icon,
+    Color color,
+  ) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -132,30 +140,45 @@ class MonthlySummaryWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, color: color, size: 20),
           const SizedBox(width: 8),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: const TextStyle(
-                  fontFamily: "Poppins",
-                  fontSize: 11,
-                  color: Colors.white70,
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontFamily: "Poppins",
+                    fontSize: 16,
+                    color: Colors.white,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
-              Text(
-                value,
-                style: const TextStyle(
-                  fontFamily: "Poppins",
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                Text(
+                  '₹$amt',
+                  style: const TextStyle(
+                    fontFamily: "Poppins",
+                    fontSize: 12,
+                    color: Colors.white70,
+                    fontWeight: FontWeight.w400,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
-            ],
+                const SizedBox(height: 2),
+                Text(
+                  '$value transactions',
+                  style: const TextStyle(
+                    fontFamily: "Poppins",
+                    fontSize: 10,
+                    color: Colors.white54,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
           ),
         ],
       ),

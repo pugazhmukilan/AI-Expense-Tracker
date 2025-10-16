@@ -64,31 +64,34 @@ class YearlySummaryWidget extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 20),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                summary.formattedTotalAmount,
-                style: const TextStyle(
-                  fontFamily: "Poppins",
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(width: 8),
-              const Padding(
-                padding: EdgeInsets.only(bottom: 6),
-                child: Text(
-                  'spent this year',
-                  style: TextStyle(
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  summary.formattedTotalAmount,
+                  style: const TextStyle(
                     fontFamily: "Poppins",
-                    fontSize: 14,
-                    color: Colors.white70,
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(width: 8),
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 6),
+                  child: Text(
+                    'Transaction this year',
+                    style: TextStyle(
+                      fontFamily: "Poppins",
+                      fontSize: 14,
+                      color: Colors.white70,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),

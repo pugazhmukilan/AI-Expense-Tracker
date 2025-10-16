@@ -40,20 +40,46 @@ class MonthlyDetailsModel {
     );
   }
 
+  // Calculate total debited amount from all transactions
   double get totalSpent {
+    // If API provides the amount and it's not 0, use it
+    if (monthlyStats.debitedAmount > 0) {
+      return monthlyStats.debitedAmount;
+    }
+    
+    // Otherwise, calculate from transactions
     double total = 0;
-    categoryWiseSummary.forEach((key, value) {
-      for (var transaction in value.transactions) {
-        if (transaction.transactionType == 'debited') {
-          total += transaction.amountValue;
-        }
+    for (var transaction in allTransactions) {
+      if (transaction.transactionType == 'debited') {
+        total += transaction.amountValue;
       }
-    });
+    }
     return total;
   }
 
   String get formattedTotalSpent {
     return '₹${totalSpent.toStringAsFixed(2)}';
+  }
+  
+  // Calculate total credited amount from all transactions
+  double get totalCredited {
+    // If API provides the amount and it's not 0, use it
+    if (monthlyStats.creditedAmount > 0) {
+      return monthlyStats.creditedAmount;
+    }
+    
+    // Otherwise, calculate from transactions
+    double total = 0;
+    for (var transaction in allTransactions) {
+      if (transaction.transactionType == 'credited') {
+        total += transaction.amountValue;
+      }
+    }
+    return total;
+  }
+  
+  String get formattedTotalCredited {
+    return '₹${totalCredited.toStringAsFixed(2)}';
   }
 }
 

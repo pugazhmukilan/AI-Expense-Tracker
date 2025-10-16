@@ -8,38 +8,76 @@ class MonthlyChartRepository {
   final String _baseUrl = backendlink.BACKEND;
 
   Future<List<MonthlySpend>> fetchLastSixMonthsSpending() async {
+    print('\n');
+    print('╔════════════════════════════════════════════════════════════════════════════╗');
+    print('║                    HOME PAGE - SPENDING CHART API CALL                     ║');
+    print('╚════════════════════════════════════════════════════════════════════════════╝');
+    print('📊 Requesting: Last 6 months spending data');
+    print('🔗 Endpoint: /api/transactions/last-six-months');
+    
     try {
-      // 2. Get the token from local storage
       final String? token = LocalStorage.getString('token');
 
       if (token == null) {
+        print('❌ ERROR: Authentication token not found');
         throw Exception(
           'Authentication token not found. User may be logged out.',
         );
       }
+      print('✅ Auth Token Found: ${token.substring(0, 20)}...');
 
-      // 3. Create the authorization headers
       final Map<String, String> headers = {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
       };
 
+      final url = '$_baseUrl/api/transactions/last-six-months';
+      print('🚀 Making API Request to: $url');
+
       final response = await http.get(
-        Uri.parse('$_baseUrl/api/transactions/last-six-months'),
-        headers: headers, // 4. Add the headers to your request
+        Uri.parse(url),
+        headers: headers,
       );
 
+      print('\n📥 API RESPONSE RECEIVED:');
+      print('├─ Status Code: ${response.statusCode}');
+
       if (response.statusCode == 200) {
+        print('├─ Status: ✅ SUCCESS');
         final Map<String, dynamic> decodedJson = jsonDecode(response.body);
+        
+        print('├─ Response Body:');
+        print('│  ${response.body}');
+        print('│');
+        
         final List<dynamic> monthsList = decodedJson['data']['months'];
-        print("Fetched Monthly Chart Data: $monthsList");
+        print('├─ Parsed Data:');
+        print('│  ├─ Number of Months: ${monthsList.length}');
+        print('│  │');
+        
+        for (var i = 0; i < monthsList.length; i++) {
+          final month = monthsList[i];
+          print('│  ├─ Month ${i + 1}:');
+          print('│  │  ├─ Month Name: ${month['monthName']}');
+          print('│  │  ├─ Month Number: ${month['month']}');
+          print('│  │  ├─ Year: ${month['year']}');
+          print('│  │  └─ Total Amount: ${month['totalAmount']}');
+        }
+        
+        print('└─ ✅ Chart Data Parsed Successfully');
+        print('╚════════════════════════════════════════════════════════════════════════════╝\n');
+        
         return monthsList.map((json) => MonthlySpend.fromJson(json)).toList();
       } else {
+        print('├─ Status: ❌ ERROR (${response.statusCode})');
+        print('├─ Error Response: ${response.body}');
+        print('└─ Failed to load chart data');
+        print('╚════════════════════════════════════════════════════════════════════════════╝\n');
         throw Exception('Failed to load chart data: ${response.statusCode}');
       }
     } catch (e) {
-      print('--- ERROR FETCHING CHART DATA ---');
-      print(e);
+      print('└─ ❌ EXCEPTION OCCURRED: $e');
+      print('╚════════════════════════════════════════════════════════════════════════════╝\n');
       throw Exception('Failed to load monthly chart data');
     }
   }
