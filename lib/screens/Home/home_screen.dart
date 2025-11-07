@@ -12,6 +12,7 @@ import 'package:ai_expense/bloc/message_bloc.dart'
         FetchMessage;
 import 'package:ai_expense/screens/AmountSpendings/amount_spendings.dart';
 import 'package:ai_expense/screens/AnalysisReports/analysis_reports_screen.dart';
+import 'package:ai_expense/screens/MonthlyAnalysis/monthly_analysis_screen.dart';
 import 'package:ai_expense/screens/budget_screen.dart';
 import 'package:ai_expense/screens/login_or_sign_screen.dart'
     show LoginOrSignScreen;
@@ -47,8 +48,8 @@ class _HomeScreenState extends State<HomeScreen> {
       _selectedIndex = index;
     });
   }
-
-  late final List<Widget> _pages = [const _HomeContent(), const BudgetScreen()];
+  DateTime noww = DateTime.now();
+  late final List<Widget> _pages = [const _HomeContent(), AmountSpendingsScreen(back:false)];
 
   @override
   Widget build(BuildContext context) {
@@ -288,28 +289,67 @@ class _HomeContentState extends State<_HomeContent> {
   @override
   Widget build(BuildContext context) {
     String userName = LocalStorage.getString('name') ?? "User";
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        elevation: 0,
-        toolbarHeight: 80,
-        animateColor: true,
-        automaticallyImplyLeading: false,
-        actions: [
-          Builder(
-            builder: (context) => IconButton(
-              icon: const Icon(
-                Icons.menu,
-                color: Colors.white,
-                size: 28,
+    return BlocListener<MessageBloc, MessageState>(
+      listener: (context, state) {
+        if (state is MessageFetching) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  ),
+                  SizedBox(width: 16),
+                  Text('Fetching messages...'),
+                ],
               ),
-              onPressed: () {
-                Scaffold.of(context).openDrawer();
-              },
+              backgroundColor: Colors.black87,
+              duration: Duration(minutes: 1),
+              behavior: SnackBarBehavior.floating,
             ),
-          ),
-        ],
-        flexibleSpace: Container(
+          );
+        } else if (state is MessageFetched) {
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  Icon(Icons.check_circle, color: Colors.white),
+                  SizedBox(width: 16),
+                  Text('Messages fetched successfully!'),
+                ],
+              ),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 3),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: AppColors.primary,
+          elevation: 0,
+          toolbarHeight: 80,
+          animateColor: true,
+          automaticallyImplyLeading: false,
+          actions: [
+            Builder(
+              builder:
+                  (context) => IconButton(
+                    icon: const Icon(Icons.menu, color: Colors.white, size: 28),
+                    onPressed: () {
+                      Scaffold.of(context).openDrawer();
+                    },
+                  ),
+            ),
+          ],
+          flexibleSpace: Container(
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 2),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.end,
@@ -378,30 +418,6 @@ class _HomeContentState extends State<_HomeContent> {
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 5),
         children: [
-          BlocBuilder<MessageBloc, MessageState>(
-            builder: (context, state) {
-              if (state is MessageFetching) {
-                return const Center(
-                  child: CircularProgressIndicator(color: Colors.green),
-                );
-              } else if (state is MessageFetched) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 5.0),
-                  child: Center(
-                    child: Text(
-                      "Message fetched successfully!",
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontFamily: "Poppins",
-                        color: Colors.green,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ),
-                );
-              }
-              return const SizedBox();
-            },
-          ),
           const SizedBox(height: 10),
 
           // Monthly Summary Card - now using HomeSummaryBloc
@@ -686,14 +702,17 @@ class _HomeContentState extends State<_HomeContent> {
                                 state.spendingData.asMap().entries.map((entry) {
                                   final index = entry.key;
                                   final dataPoint = entry.value;
-                                  
+
                                   // Get the appropriate value and color based on selected view
                                   double barValue;
                                   Color barColor;
                                   switch (_chartView) {
                                     case 'debited':
                                       barValue = dataPoint.debitedAmount;
-                                      barColor = Colors.red.shade400; // Red for spending
+                                      barColor =
+                                          Colors
+                                              .red
+                                              .shade400; // Red for spending
                                       break;
                                     case 'credited':
                                       barValue = dataPoint.creditedAmount;
@@ -702,9 +721,11 @@ class _HomeContentState extends State<_HomeContent> {
                                     case 'total':
                                     default:
                                       barValue = dataPoint.totalSpent;
-                                      barColor = AppColors.tertiary.withOpacity(0.8); // Default
+                                      barColor = AppColors.tertiary.withOpacity(
+                                        0.8,
+                                      ); // Default
                                   }
-                                  
+
                                   return makeGroupData(
                                     index,
                                     barValue,
@@ -721,7 +742,7 @@ class _HomeContentState extends State<_HomeContent> {
                                 ) {
                                   final monthData =
                                       state.spendingData[group.x.toInt()];
-                                  
+
                                   // Get the appropriate label and value based on selected view
                                   String label;
                                   double value;
@@ -739,7 +760,7 @@ class _HomeContentState extends State<_HomeContent> {
                                       label = 'Total';
                                       value = monthData.totalSpent;
                                   }
-                                  
+
                                   return BarTooltipItem(
                                     '${monthData.monthName}\n$label: ₹${value.toStringAsFixed(0)}',
                                     const TextStyle(
@@ -772,7 +793,7 @@ class _HomeContentState extends State<_HomeContent> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => AmountSpendingsScreen(),
+                        builder: (context) => AmountSpendingsScreen(back:true),
                       ),
                     );
                   },
@@ -803,10 +824,15 @@ class _HomeContentState extends State<_HomeContent> {
               Expanded(
                 child: ElevatedButton(
                   onPressed: () {
+                    DateTime now = DateTime.now();
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const AnalysisReportsScreen(),
+                        builder:
+                            (context) => MonthlyAnalysisScreen(
+                              year: now.year,
+                              month: now.month,
+                            ),
                       ),
                     );
                   },
@@ -822,7 +848,7 @@ class _HomeContentState extends State<_HomeContent> {
                   ),
                   child: const Center(
                     child: Text(
-                      'Check Analysis Reports',
+                      'View Monthly Analysis',
                       style: TextStyle(
                         fontFamily: "Poppins",
                         color: Colors.white,
@@ -862,53 +888,54 @@ class _HomeContentState extends State<_HomeContent> {
           const SizedBox(height: 16),
 
           // File Picker (Remains the same)
-          GestureDetector(
-            onTap: () async {
-              FilePickerResult? result = await FilePicker.platform.pickFiles(
-                type: FileType.custom,
-                allowedExtensions: ['pdf', 'jpg', 'png'],
-              );
+          // GestureDetector(
+          //   onTap: () async {
+          //     FilePickerResult? result = await FilePicker.platform.pickFiles(
+          //       type: FileType.custom,
+          //       allowedExtensions: ['pdf', 'jpg', 'png'],
+          //     );
 
-              if (result != null && result.files.isNotEmpty) {
-                final file = result.files.first;
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("Picked file: ${file.name}")),
-                  );
-                }
-              }
-            },
-            child: DottedBorder(
-              borderType: BorderType.RRect,
-              radius: const Radius.circular(16),
-              dashPattern: const [8, 4],
-              color: AppColors.primary,
-              child: const SizedBox(
-                height: 100,
-                width: double.infinity,
-                child: Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.add_circle_outline, color: AppColors.primary),
-                      SizedBox(width: 8),
-                      Text(
-                        "Add a bank statement",
-                        style: TextStyle(
-                          fontFamily: "Poppins",
-                          color: Colors.black,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
+          //     if (result != null && result.files.isNotEmpty) {
+          //       final file = result.files.first;
+          //       if (mounted) {
+          //         ScaffoldMessenger.of(context).showSnackBar(
+          //           SnackBar(content: Text("Picked file: ${file.name}")),
+          //         );
+          //       }
+          //     }
+          //   },
+          //   child: DottedBorder(
+          //     borderType: BorderType.RRect,
+          //     radius: const Radius.circular(16),
+          //     dashPattern: const [8, 4],
+          //     color: AppColors.primary,
+          //     child: const SizedBox(
+          //       height: 100,
+          //       width: double.infinity,
+          //       child: Center(
+          //         child: Row(
+          //           mainAxisAlignment: MainAxisAlignment.center,
+          //           children: [
+          //             Icon(Icons.add_circle_outline, color: AppColors.primary),
+          //             SizedBox(width: 8),
+          //             Text(
+          //               "Add a bank statement",
+          //               style: TextStyle(
+          //                 fontFamily: "Poppins",
+          //                 color: Colors.black,
+          //                 fontWeight: FontWeight.w500,
+          //               ),
+          //             ),
+          //           ],
+          //         ),
+          //       ),
+          //     ),
+          //   ),
+          // ),
           const SizedBox(height: 24),
         ],
       ),
+    ),
     );
   }
 
@@ -923,9 +950,7 @@ class _HomeContentState extends State<_HomeContent> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
-          color: isSelected 
-              ? AppColors.primary
-              : Colors.transparent,
+          color: isSelected ? AppColors.primary : Colors.transparent,
           borderRadius: BorderRadius.circular(6),
         ),
         child: Row(
@@ -1016,6 +1041,7 @@ class _HomeContentState extends State<_HomeContent> {
         highlightColor: Colors.white38,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1118,10 +1144,18 @@ class _HomeContentState extends State<_HomeContent> {
           // Drawer Header
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.only(top: 50, bottom: 20, left: 20, right: 20),
+            padding: const EdgeInsets.only(
+              top: 50,
+              bottom: 20,
+              left: 20,
+              right: 20,
+            ),
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [AppColors.tertiary, AppColors.tertiary.withOpacity(0.8)],
+                colors: [
+                  AppColors.tertiary,
+                  AppColors.tertiary.withOpacity(0.8),
+                ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -1166,11 +1200,7 @@ class _HomeContentState extends State<_HomeContent> {
           const SizedBox(height: 20),
           // Logout Option
           ListTile(
-            leading: const Icon(
-              Icons.logout,
-              color: Colors.white,
-              size: 26,
-            ),
+            leading: const Icon(Icons.logout, color: Colors.white, size: 26),
             title: const Text(
               'Logout',
               style: TextStyle(
@@ -1184,9 +1214,7 @@ class _HomeContentState extends State<_HomeContent> {
               Navigator.of(context).pop(); // Close drawer
               context.read<AuthBloc>().add(LogoutRequested());
               Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(
-                  builder: (_) => const LoginOrSignScreen(),
-                ),
+                MaterialPageRoute(builder: (_) => const LoginOrSignScreen()),
                 (route) => false,
               );
             },
@@ -1226,7 +1254,7 @@ class _HomeContentState extends State<_HomeContent> {
   void _showDeleteConfirmationDialog(BuildContext context) {
     // Capture the AuthBloc before showing the dialog
     final authBloc = context.read<AuthBloc>();
-    
+
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) {
@@ -1237,7 +1265,11 @@ class _HomeContentState extends State<_HomeContent> {
           ),
           title: const Row(
             children: [
-              Icon(Icons.warning_amber_rounded, color: Colors.redAccent, size: 28),
+              Icon(
+                Icons.warning_amber_rounded,
+                color: Colors.redAccent,
+                size: 28,
+              ),
               SizedBox(width: 12),
               Text(
                 'Delete Account',
@@ -1279,9 +1311,7 @@ class _HomeContentState extends State<_HomeContent> {
                 authBloc.add(DeleteAccountRequested());
                 // Navigate to login screen
                 Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(
-                    builder: (_) => const LoginOrSignScreen(),
-                  ),
+                  MaterialPageRoute(builder: (_) => const LoginOrSignScreen()),
                   (route) => false,
                 );
               },

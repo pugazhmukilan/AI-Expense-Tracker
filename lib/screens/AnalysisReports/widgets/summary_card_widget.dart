@@ -22,10 +22,7 @@ class SummaryCardWidget extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: color.withOpacity(0.3),
-          width: 2,
-        ),
+        border: Border.all(color: color.withOpacity(0.3), width: 2),
         boxShadow: [
           BoxShadow(
             color: color.withOpacity(0.1),
@@ -45,11 +42,7 @@ class SummaryCardWidget extends StatelessWidget {
                   color: color.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(
-                  icon,
-                  color: color,
-                  size: 20,
-                ),
+                child: Icon(icon, color: color, size: 20),
               ),
               const SizedBox(width: 12),
               Expanded(

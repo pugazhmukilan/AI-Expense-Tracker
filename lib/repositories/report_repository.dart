@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:ai_expense/models/monthly_analysis_model.dart';
 import 'package:ai_expense/models/report_model.dart';
 import 'package:ai_expense/models/report_details_model.dart';
 import 'package:ai_expense/utils/local_storage.dart';
@@ -11,7 +12,7 @@ class ReportRepository {
   // Generate dummy data for testing
   List<ReportModel> _getDummyReports() {
     final now = DateTime.now();
-    
+
     return [
       ReportModel(
         id: '1',
@@ -19,10 +20,7 @@ class ReportRepository {
         year: 2025,
         isSeen: false,
         createdAt: now,
-        additionalData: {
-          'totalTransactions': 45,
-          'totalAmount': 12450.50,
-        },
+        additionalData: {'totalTransactions': 45, 'totalAmount': 12450.50},
       ),
       ReportModel(
         id: '2',
@@ -30,10 +28,7 @@ class ReportRepository {
         year: 2025,
         isSeen: true,
         createdAt: now.subtract(const Duration(days: 30)),
-        additionalData: {
-          'totalTransactions': 52,
-          'totalAmount': 15600.75,
-        },
+        additionalData: {'totalTransactions': 52, 'totalAmount': 15600.75},
       ),
       ReportModel(
         id: '3',
@@ -41,10 +36,7 @@ class ReportRepository {
         year: 2025,
         isSeen: true,
         createdAt: now.subtract(const Duration(days: 60)),
-        additionalData: {
-          'totalTransactions': 38,
-          'totalAmount': 9800.25,
-        },
+        additionalData: {'totalTransactions': 38, 'totalAmount': 9800.25},
       ),
       ReportModel(
         id: '4',
@@ -52,10 +44,7 @@ class ReportRepository {
         year: 2025,
         isSeen: false,
         createdAt: now.subtract(const Duration(days: 90)),
-        additionalData: {
-          'totalTransactions': 41,
-          'totalAmount': 11250.00,
-        },
+        additionalData: {'totalTransactions': 41, 'totalAmount': 11250.00},
       ),
       ReportModel(
         id: '5',
@@ -63,10 +52,7 @@ class ReportRepository {
         year: 2025,
         isSeen: true,
         createdAt: now.subtract(const Duration(days: 120)),
-        additionalData: {
-          'totalTransactions': 35,
-          'totalAmount': 8900.50,
-        },
+        additionalData: {'totalTransactions': 35, 'totalAmount': 8900.50},
       ),
       ReportModel(
         id: '6',
@@ -74,10 +60,7 @@ class ReportRepository {
         year: 2025,
         isSeen: true,
         createdAt: now.subtract(const Duration(days: 150)),
-        additionalData: {
-          'totalTransactions': 48,
-          'totalAmount': 13400.75,
-        },
+        additionalData: {'totalTransactions': 48, 'totalAmount': 13400.75},
       ),
     ];
   }
@@ -85,7 +68,7 @@ class ReportRepository {
   Future<List<ReportModel>> fetchReports() async {
     // For now, return dummy data with a simulated delay
     // Comment out the try-catch block below when API is ready
-    
+
     print("Fetching reports with dummy data (API not implemented yet)");
     await Future.delayed(const Duration(seconds: 2)); // Simulate network delay
     return _getDummyReports();
@@ -134,7 +117,7 @@ class ReportRepository {
   // Generate dummy report details for testing
   ReportDetailsModel _getDummyReportDetails(String reportId) {
     final now = DateTime.now();
-    
+
     // Find the matching report from dummy reports
     final dummyReports = _getDummyReports();
     final report = dummyReports.firstWhere(
@@ -148,7 +131,8 @@ class ReportRepository {
       year: report.year,
       isSeen: report.isSeen,
       createdAt: report.createdAt,
-      totalAmount: (report.additionalData?['totalAmount'] ?? 10000.0).toDouble(),
+      totalAmount:
+          (report.additionalData?['totalAmount'] ?? 10000.0).toDouble(),
       totalTransactions: report.additionalData?['totalTransactions'] ?? 40,
       categoryBreakdown: {
         'Food & Dining': 3500.0,
@@ -196,7 +180,8 @@ class ReportRepository {
           merchant: 'Gas Station',
         ),
       ],
-      summary: 'Your spending for ${report.month} ${report.year} shows a total of ₹${(report.additionalData?['totalAmount'] ?? 10000.0).toStringAsFixed(2)} across ${report.additionalData?['totalTransactions'] ?? 40} transactions. Your highest spending category was Food & Dining, followed by Shopping and Bills & Utilities.',
+      summary:
+          'Your spending for ${report.month} ${report.year} shows a total of ₹${(report.additionalData?['totalAmount'] ?? 10000.0).toStringAsFixed(2)} across ${report.additionalData?['totalTransactions'] ?? 40} transactions. Your highest spending category was Food & Dining, followed by Shopping and Bills & Utilities.',
       additionalData: {
         'averageTransactionAmount': 250.0,
         'largestTransaction': 2500.0,
@@ -208,7 +193,7 @@ class ReportRepository {
   Future<ReportDetailsModel> fetchReportDetails(String reportId) async {
     // For now, return dummy data with a simulated delay
     // Comment out the block below when API is ready
-    
+
     print("Fetching report details for ID: $reportId (using dummy data)");
     await Future.delayed(const Duration(seconds: 2)); // Simulate network delay
     return _getDummyReportDetails(reportId);
@@ -240,5 +225,82 @@ class ReportRepository {
     
     */
   }
-}
 
+  final String _baseUrl =
+      'https://capestone-backend-1-q0hb.onrender.com/api/analysis';
+
+  // --- Helper method to get headers ---
+  Future<Map<String, String>> _getHeaders() async {
+    // --- THIS IS THE FIX ---
+    // Use your getString method instead of getToken()
+    // If your token key is not 'token', change it here.
+    final token = LocalStorage.getString('token');
+
+    if (token == null) {
+      throw Exception("User not authenticated (token is null)");
+    }
+
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token', // <-- The token your server needs
+    };
+  }
+
+  // POST /api/analysis/generate
+  Future<MonthlyAnalysisModel> generateReport(int year, int month) async {
+    final headers = await _getHeaders(); // <-- Get headers
+    final response = await http.post(
+      Uri.parse('$_baseUrl/generate'),
+      headers: headers, // <-- Pass headers
+      body: json.encode({'year': year, 'month': month}),
+    );
+
+    final data = json.decode(response.body);
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return MonthlyAnalysisModel.fromJson(
+        data['data'] as Map<String, dynamic>,
+      );
+    } else {
+      throw Exception(data['message'] ?? 'Failed to generate report');
+    }
+  }
+
+  // GET /api/analysis/view
+  Future<MonthlyAnalysisModel> fetchReportByMonth(int year, int month) async {
+    final headers = await _getHeaders(); // <-- Get headers
+    final response = await http.get(
+      Uri.parse('$_baseUrl/view?year=$year&month=$month'),
+      headers: headers, // <-- Pass headers
+    );
+
+    final data = json.decode(response.body);
+    if (response.statusCode == 200) {
+      return MonthlyAnalysisModel.fromJson(
+        data['data'] as Map<String, dynamic>,
+      );
+    } else if (response.statusCode == 404) {
+      throw Exception('404: Analysis not found');
+    } else {
+      throw Exception(data['message'] ?? 'Failed to fetch report');
+    }
+  }
+
+  // PUT /api/analysis/update
+  Future<MonthlyAnalysisModel> updateReport(int year, int month) async {
+    final headers = await _getHeaders(); // <-- Get headers
+    final response = await http.put(
+      Uri.parse('$_baseUrl/update'),
+      headers: headers, // <-- Pass headers
+      body: json.encode({'year': year, 'month': month}),
+    );
+
+    final data = json.decode(response.body);
+    if (response.statusCode == 200) {
+      return MonthlyAnalysisModel.fromJson(
+        data['data'] as Map<String, dynamic>,
+      );
+    } else {
+      throw Exception(data['message'] ?? 'Failed to update report');
+    }
+  }
+}
