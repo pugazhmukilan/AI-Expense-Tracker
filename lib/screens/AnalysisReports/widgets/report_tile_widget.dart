@@ -6,11 +6,8 @@ class ReportTileWidget extends StatelessWidget {
   final ReportModel report;
   final VoidCallback onTap;
 
-  const ReportTileWidget({
-    Key? key,
-    required this.report,
-    required this.onTap,
-  }) : super(key: key);
+  const ReportTileWidget({Key? key, required this.report, required this.onTap})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -20,9 +17,10 @@ class ReportTileWidget extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: BorderSide(
-          color: report.isSeen
-              ? Colors.grey.withOpacity(0.3)
-              : AppColors.tertiary.withOpacity(0.5),
+          color:
+              report.isSeen
+                  ? Colors.grey.withOpacity(0.3)
+                  : AppColors.tertiary.withOpacity(0.5),
           width: 2,
         ),
       ),
@@ -34,9 +32,10 @@ class ReportTileWidget extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
             gradient: LinearGradient(
-              colors: report.isSeen
-                  ? [Colors.grey.shade50, Colors.grey.shade100]
-                  : [Colors.white, AppColors.tertiary.withOpacity(0.05)],
+              colors:
+                  report.isSeen
+                      ? [Colors.grey.shade50, Colors.grey.shade100]
+                      : [Colors.white, AppColors.tertiary.withOpacity(0.05)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -48,9 +47,7 @@ class ReportTileWidget extends StatelessWidget {
               const SizedBox(width: 16),
 
               // Details
-              Expanded(
-                child: _buildReportDetails(),
-              ),
+              Expanded(child: _buildReportDetails()),
 
               // Status Badge
               _buildStatusBadge(),
@@ -66,9 +63,7 @@ class ReportTileWidget extends StatelessWidget {
       width: 70,
       height: 70,
       decoration: BoxDecoration(
-        color: report.isSeen
-            ? Colors.grey.withOpacity(0.2)
-            : AppColors.primary,
+        color: report.isSeen ? Colors.grey.withOpacity(0.2) : AppColors.primary,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -137,14 +132,10 @@ class ReportTileWidget extends StatelessWidget {
 
   Widget _buildStatusBadge() {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 12,
-        vertical: 6,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: report.isSeen
-            ? Colors.grey.withOpacity(0.2)
-            : AppColors.tertiary,
+        color:
+            report.isSeen ? Colors.grey.withOpacity(0.2) : AppColors.tertiary,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(

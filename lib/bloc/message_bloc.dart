@@ -17,7 +17,7 @@ class MessageBloc extends Bloc<MessageEvent, MessageState> {
           LocalStorage.getString("lastdate") == null) {
         // Create a date that is 120 days before now
         DateTime twoMonthsAgo = DateTime.now().subtract(
-          const Duration(days: 60),
+          const Duration(days: 360),
         );
         print("Date is null");
         print(twoMonthsAgo.toString());

@@ -11,6 +11,8 @@ import 'package:ai_expense/bloc/message_bloc.dart'
         MessageState,
         FetchMessage;
 import 'package:ai_expense/screens/AmountSpendings/amount_spendings.dart';
+import 'package:ai_expense/screens/AnalysisReports/analysis_reports_screen.dart';
+import 'package:ai_expense/screens/MonthlyAnalysis/monthly_analysis_screen.dart';
 import 'package:ai_expense/screens/budget_screen.dart';
 import 'package:ai_expense/screens/login_or_sign_screen.dart'
     show LoginOrSignScreen;
@@ -296,16 +298,13 @@ class _HomeContentState extends State<_HomeContent> {
         automaticallyImplyLeading: false,
         actions: [
           Builder(
-            builder: (context) => IconButton(
-              icon: const Icon(
-                Icons.menu,
-                color: Colors.white,
-                size: 28,
-              ),
-              onPressed: () {
-                Scaffold.of(context).openDrawer();
-              },
-            ),
+            builder:
+                (context) => IconButton(
+                  icon: const Icon(Icons.menu, color: Colors.white, size: 28),
+                  onPressed: () {
+                    Scaffold.of(context).openDrawer();
+                  },
+                ),
           ),
         ],
         flexibleSpace: Container(
@@ -685,14 +684,17 @@ class _HomeContentState extends State<_HomeContent> {
                                 state.spendingData.asMap().entries.map((entry) {
                                   final index = entry.key;
                                   final dataPoint = entry.value;
-                                  
+
                                   // Get the appropriate value and color based on selected view
                                   double barValue;
                                   Color barColor;
                                   switch (_chartView) {
                                     case 'debited':
                                       barValue = dataPoint.debitedAmount;
-                                      barColor = Colors.red.shade400; // Red for spending
+                                      barColor =
+                                          Colors
+                                              .red
+                                              .shade400; // Red for spending
                                       break;
                                     case 'credited':
                                       barValue = dataPoint.creditedAmount;
@@ -701,9 +703,11 @@ class _HomeContentState extends State<_HomeContent> {
                                     case 'total':
                                     default:
                                       barValue = dataPoint.totalSpent;
-                                      barColor = AppColors.tertiary.withOpacity(0.8); // Default
+                                      barColor = AppColors.tertiary.withOpacity(
+                                        0.8,
+                                      ); // Default
                                   }
-                                  
+
                                   return makeGroupData(
                                     index,
                                     barValue,
@@ -720,7 +724,7 @@ class _HomeContentState extends State<_HomeContent> {
                                 ) {
                                   final monthData =
                                       state.spendingData[group.x.toInt()];
-                                  
+
                                   // Get the appropriate label and value based on selected view
                                   String label;
                                   double value;
@@ -738,7 +742,7 @@ class _HomeContentState extends State<_HomeContent> {
                                       label = 'Total';
                                       value = monthData.totalSpent;
                                   }
-                                  
+
                                   return BarTooltipItem(
                                     '${monthData.monthName}\n$label: ₹${value.toStringAsFixed(0)}',
                                     const TextStyle(
@@ -802,10 +806,15 @@ class _HomeContentState extends State<_HomeContent> {
               Expanded(
                 child: ElevatedButton(
                   onPressed: () {
+                    DateTime now = DateTime.now();
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const ViewBudgetScreen(),
+                        builder:
+                            (context) => MonthlyAnalysisScreen(
+                              year: now.year,
+                              month: now.month,
+                            ),
                       ),
                     );
                   },
@@ -821,7 +830,7 @@ class _HomeContentState extends State<_HomeContent> {
                   ),
                   child: const Center(
                     child: Text(
-                      'View Budget Details',
+                      'Monthly Analysis',
                       style: TextStyle(
                         fontFamily: "Poppins",
                         color: Colors.white,
@@ -922,9 +931,7 @@ class _HomeContentState extends State<_HomeContent> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
-          color: isSelected 
-              ? AppColors.primary
-              : Colors.transparent,
+          color: isSelected ? AppColors.primary : Colors.transparent,
           borderRadius: BorderRadius.circular(6),
         ),
         child: Row(
@@ -1117,10 +1124,18 @@ class _HomeContentState extends State<_HomeContent> {
           // Drawer Header
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.only(top: 50, bottom: 20, left: 20, right: 20),
+            padding: const EdgeInsets.only(
+              top: 50,
+              bottom: 20,
+              left: 20,
+              right: 20,
+            ),
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [AppColors.tertiary, AppColors.tertiary.withOpacity(0.8)],
+                colors: [
+                  AppColors.tertiary,
+                  AppColors.tertiary.withOpacity(0.8),
+                ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -1165,11 +1180,7 @@ class _HomeContentState extends State<_HomeContent> {
           const SizedBox(height: 20),
           // Logout Option
           ListTile(
-            leading: const Icon(
-              Icons.logout,
-              color: Colors.white,
-              size: 26,
-            ),
+            leading: const Icon(Icons.logout, color: Colors.white, size: 26),
             title: const Text(
               'Logout',
               style: TextStyle(
@@ -1183,9 +1194,7 @@ class _HomeContentState extends State<_HomeContent> {
               Navigator.of(context).pop(); // Close drawer
               context.read<AuthBloc>().add(LogoutRequested());
               Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(
-                  builder: (_) => const LoginOrSignScreen(),
-                ),
+                MaterialPageRoute(builder: (_) => const LoginOrSignScreen()),
                 (route) => false,
               );
             },
@@ -1225,7 +1234,7 @@ class _HomeContentState extends State<_HomeContent> {
   void _showDeleteConfirmationDialog(BuildContext context) {
     // Capture the AuthBloc before showing the dialog
     final authBloc = context.read<AuthBloc>();
-    
+
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) {
@@ -1236,7 +1245,11 @@ class _HomeContentState extends State<_HomeContent> {
           ),
           title: const Row(
             children: [
-              Icon(Icons.warning_amber_rounded, color: Colors.redAccent, size: 28),
+              Icon(
+                Icons.warning_amber_rounded,
+                color: Colors.redAccent,
+                size: 28,
+              ),
               SizedBox(width: 12),
               Text(
                 'Delete Account',
@@ -1278,9 +1291,7 @@ class _HomeContentState extends State<_HomeContent> {
                 authBloc.add(DeleteAccountRequested());
                 // Navigate to login screen
                 Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(
-                    builder: (_) => const LoginOrSignScreen(),
-                  ),
+                  MaterialPageRoute(builder: (_) => const LoginOrSignScreen()),
                   (route) => false,
                 );
               },
