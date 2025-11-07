@@ -11,6 +11,7 @@ import 'package:ai_expense/bloc/message_bloc.dart'
         MessageState,
         FetchMessage;
 import 'package:ai_expense/screens/AmountSpendings/amount_spendings.dart';
+import 'package:ai_expense/screens/AnalysisReports/analysis_reports_screen.dart';
 import 'package:ai_expense/screens/budget_screen.dart';
 import 'package:ai_expense/screens/login_or_sign_screen.dart'
     show LoginOrSignScreen;
@@ -805,7 +806,7 @@ class _HomeContentState extends State<_HomeContent> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const ViewBudgetScreen(),
+                        builder: (context) => const AnalysisReportsScreen(),
                       ),
                     );
                   },
@@ -821,7 +822,7 @@ class _HomeContentState extends State<_HomeContent> {
                   ),
                   child: const Center(
                     child: Text(
-                      'View Budget Details',
+                      'Check Analysis Reports',
                       style: TextStyle(
                         fontFamily: "Poppins",
                         color: Colors.white,
