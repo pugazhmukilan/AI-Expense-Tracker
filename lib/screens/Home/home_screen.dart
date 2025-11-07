@@ -92,6 +92,8 @@ class _HomeContentState extends State<_HomeContent> {
   void initState() {
     super.initState();
     final now = DateTime.now();
+    // Fetch messages automatically when home screen loads
+    context.read<MessageBloc>().add(FetchMessage());
     // Fetch data for the top summary card using HomeSummaryBloc
     context.read<HomeSummaryBloc>().add(
       FetchHomeSummary(month: now.month, year: now.year),
@@ -292,6 +294,7 @@ class _HomeContentState extends State<_HomeContent> {
     return BlocListener<MessageBloc, MessageState>(
       listener: (context, state) {
         if (state is MessageFetching) {
+          ScaffoldMessenger.of(context).clearSnackBars();
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Row(
@@ -308,13 +311,15 @@ class _HomeContentState extends State<_HomeContent> {
                   Text('Fetching messages...'),
                 ],
               ),
-              backgroundColor: Colors.black87,
-              duration: Duration(minutes: 1),
+              backgroundColor: AppColors.primary,
+              duration: Duration(hours: 1), // Long duration, will be manually dismissed
               behavior: SnackBarBehavior.floating,
             ),
           );
         } else if (state is MessageFetched) {
-          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          // Immediately hide the loading SnackBar
+          ScaffoldMessenger.of(context).clearSnackBars();
+          // Show success message
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Row(
@@ -329,6 +334,9 @@ class _HomeContentState extends State<_HomeContent> {
               behavior: SnackBarBehavior.floating,
             ),
           );
+        } else {
+          // For any other state (like MessageInitial), clear snackbars
+          ScaffoldMessenger.of(context).clearSnackBars();
         }
       },
       child: Scaffold(
