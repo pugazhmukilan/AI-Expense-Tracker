@@ -41,37 +41,53 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _selectedIndex = 0;
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-  DateTime noww = DateTime.now();
-  late final List<Widget> _pages = [const _HomeContent(), AmountSpendingsScreen(back:false)];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      body: IndexedStack(index: _selectedIndex, children: _pages),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_rounded),
-            label: 'Home',
+      body: const _HomeContent(),
+      bottomNavigationBar: Container(
+        height:
+            kBottomNavigationBarHeight + MediaQuery.of(context).padding.bottom,
+        padding:
+            EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
+        color: AppColors.primary,
+        child: InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => MonthlyAnalysisScreen(
+                  year: DateTime.now().year,
+                  month: DateTime.now().month,
+                ),
+              ),
+            );
+          },
+          child: Shimmer.fromColors(
+            baseColor: Colors.white,
+            highlightColor: AppColors.tertiary.withOpacity(0.6),
+            period: const Duration(seconds: 2),
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.generating_tokens_rounded,
+                  color: AppColors.tertiary,
+                ),
+                SizedBox(width: 8),
+                Text(
+                  'Genarate/View Analysis Report',
+                  style: TextStyle(
+                    color: AppColors.background,
+                    fontFamily: "Poppins",
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.account_balance_wallet_rounded),
-            label: 'Wallet',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        backgroundColor: AppColors.primary,
-        selectedItemColor: AppColors.tertiary,
-        unselectedItemColor: AppColors.onPrimary,
+        ),
       ),
     );
   }
@@ -410,7 +426,7 @@ class _HomeContentState extends State<_HomeContent> {
       drawer: _buildDrawer(context),
       floatingActionButton: FloatingActionButton(
         backgroundColor: AppColors.tertiary,
-        child: const Icon(Icons.upload_file, color: AppColors.primary),
+        child: const Icon(Icons.upload, color: AppColors.primary),
         onPressed: () {
           context.read<MessageBloc>().add(FetchMessage());
           final now = DateTime.now();
@@ -793,81 +809,36 @@ class _HomeContentState extends State<_HomeContent> {
           const SizedBox(height: 24),
 
           // Navigation Buttons (Remain the same)
-          Row(
-            children: [
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => AmountSpendingsScreen(back:true),
-                      ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: AppColors.tertiary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    side: BorderSide(
-                      color: AppColors.onPrimary.withOpacity(0.5),
-                    ),
-                  ),
-                  child: const Center(
-                    child: Text(
-                      'View Amount Spent',
-                      style: TextStyle(
-                        fontFamily: "Poppins",
-                        color: Colors.white,
-                        fontSize: 16,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AmountSpendingsScreen(back: true),
                 ),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              backgroundColor: AppColors.tertiary,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () {
-                    DateTime now = DateTime.now();
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder:
-                            (context) => MonthlyAnalysisScreen(
-                              year: now.year,
-                              month: now.month,
-                            ),
-                      ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: AppColors.primary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    side: BorderSide(
-                      color: AppColors.onPrimary.withOpacity(0.5),
-                    ),
-                  ),
-                  child: const Center(
-                    child: Text(
-                      'View Monthly Analysis',
-                      style: TextStyle(
-                        fontFamily: "Poppins",
-                        color: Colors.white,
-                        fontSize: 16,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
+              side: BorderSide(
+                color: AppColors.onPrimary.withOpacity(0.5),
+              ),
+            ),
+            child: const Center(
+              child: Text(
+                'View Amount Spent',
+                style: TextStyle(
+                  fontFamily: "Poppins",
+                  color: Colors.white,
+                  fontSize: 16,
                 ),
+                textAlign: TextAlign.center,
               ),
-            ],
+            ),
           ),
           const SizedBox(height: 16),
           ElevatedButton.icon(
@@ -941,6 +912,43 @@ class _HomeContentState extends State<_HomeContent> {
           //   ),
           // ),
           const SizedBox(height: 24),
+          // NEW: Footer section
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  'Made with ',
+                  style: TextStyle(
+                    fontFamily: "Poppins",
+                    color: Colors.grey[600],
+                    fontSize: 14,
+                  ),
+                ),
+                const Icon(
+                  Icons.favorite,
+                  color: Colors.red,
+                  size: 20,
+                ),
+                Text(
+                  ' by ',
+                  style: TextStyle(
+                    fontFamily: "Poppins",
+                    color: Colors.grey[600],
+                    fontSize: 14,
+                  ),
+                ),
+                Center(
+                  child: Image.asset(
+                    'assets/logo/expensio.png',
+                    height: 30,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     ),

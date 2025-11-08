@@ -187,14 +187,28 @@ class _AmountSpendingsScreenState extends State<AmountSpendingsScreen> {
               ],
             ),
             const SizedBox(height: 10),
-            Text(
-              value, // e.g., "₹2,050.00"
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                fontFamily: "Poppins",
-                color: color,
-              ),
+            Row(
+              children: [
+                Text(
+                  value , // e.g., "₹2,050.00"
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: "Poppins",
+                    color: color,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  "Total tranx" , // e.g., "₹2,050.00"
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w200,
+                    fontFamily: "Poppins",
+                    color: color,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
