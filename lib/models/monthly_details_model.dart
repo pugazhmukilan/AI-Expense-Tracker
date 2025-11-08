@@ -134,6 +134,79 @@ class CategoryDetails {
   String get formattedTotalAmount {
     return '₹${totalAmount.toStringAsFixed(2)}';
   }
+
+  // Group transactions by merchant within this category
+  Map<String, List<Transaction>> get groupedByMerchant {
+    final Map<String, List<Transaction>> grouped = {};
+    
+    for (var transaction in transactions) {
+      final merchant = transaction.merchant.isEmpty ? 'Unknown' : transaction.merchant;
+      if (!grouped.containsKey(merchant)) {
+        grouped[merchant] = [];
+      }
+      grouped[merchant]!.add(transaction);
+    }
+    
+    return grouped;
+  }
+
+  // Get merchant breakdown with totals
+  List<MerchantSummary> get merchantBreakdown {
+    final grouped = groupedByMerchant;
+    return grouped.entries.map((entry) {
+      final merchant = entry.key;
+      final merchantTransactions = entry.value;
+      
+      double debitedAmount = 0;
+      double creditedAmount = 0;
+      int debitedCount = 0;
+      int creditedCount = 0;
+      
+      for (var transaction in merchantTransactions) {
+        if (transaction.transactionType == 'debited') {
+          debitedAmount += transaction.amountValue;
+          debitedCount++;
+        } else {
+          creditedAmount += transaction.amountValue;
+          creditedCount++;
+        }
+      }
+      
+      return MerchantSummary(
+        merchant: merchant,
+        totalAmount: debitedAmount + creditedAmount,
+        debitedAmount: debitedAmount,
+        creditedAmount: creditedAmount,
+        transactionCount: merchantTransactions.length,
+        debitedCount: debitedCount,
+        creditedCount: creditedCount,
+      );
+    }).toList();
+  }
+}
+
+class MerchantSummary {
+  final String merchant;
+  final double totalAmount;
+  final double debitedAmount;
+  final double creditedAmount;
+  final int transactionCount;
+  final int debitedCount;
+  final int creditedCount;
+
+  MerchantSummary({
+    required this.merchant,
+    required this.totalAmount,
+    required this.debitedAmount,
+    required this.creditedAmount,
+    required this.transactionCount,
+    required this.debitedCount,
+    required this.creditedCount,
+  });
+
+  String get formattedTotalAmount => '₹${totalAmount.toStringAsFixed(2)}';
+  String get formattedDebitedAmount => '₹${debitedAmount.toStringAsFixed(2)}';
+  String get formattedCreditedAmount => '₹${creditedAmount.toStringAsFixed(2)}';
 }
 
 class Transaction {

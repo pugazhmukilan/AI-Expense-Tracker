@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:ai_expense/models/monthly_details_model.dart';
-import 'package:ai_expense/models/category_details_model.dart';
-import 'package:ai_expense/repositories/category_details_repository.dart';
 import 'package:ai_expense/theme/app_theme.dart';
 
 class CategoryListWidget extends StatelessWidget {
@@ -31,8 +29,6 @@ class CategoryListWidget extends StatelessWidget {
           return CategoryExpansionTile(
             categoryName: entry.key,
             categoryDetails: entry.value,
-            month: monthlyDetails.month,
-            year: monthlyDetails.year,
           );
         }).toList(),
       ],
@@ -43,15 +39,11 @@ class CategoryListWidget extends StatelessWidget {
 class CategoryExpansionTile extends StatefulWidget {
   final String categoryName;
   final CategoryDetails categoryDetails;
-  final int month;
-  final int year;
 
   const CategoryExpansionTile({
     Key? key,
     required this.categoryName,
     required this.categoryDetails,
-    required this.month,
-    required this.year,
   }) : super(key: key);
 
   @override
@@ -60,55 +52,11 @@ class CategoryExpansionTile extends StatefulWidget {
 
 class _CategoryExpansionTileState extends State<CategoryExpansionTile> {
   bool _isExpanded = false;
-  bool _isLoading = false;
-  CategoryDetailsModel? _categoryData;
-  String? _errorMessage;
-  final CategoryDetailsRepository _repository = CategoryDetailsRepository();
-
-  Future<void> _loadCategoryDetails() async {
-    if (_categoryData != null) return; // Already loaded
-
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
-
-    try {
-      print(
-        'Loading category details for: ${widget.categoryName}, Month: ${widget.month}, Year: ${widget.year}',
-      );
-
-      final data = await _repository.fetchCategoryDetails(
-        category: widget.categoryName,
-        month: widget.month,
-        year: widget.year,
-      );
-
-      print('Received data: ${data != null ? "Success" : "Null"}');
-      if (data != null) {
-        print('Merchant breakdown count: ${data.merchantBreakdown.length}');
-      }
-
-      setState(() {
-        _categoryData = data;
-        _isLoading = false;
-        if (data == null) {
-          _errorMessage = 'No data available for this category';
-        } else if (data.merchantBreakdown.isEmpty) {
-          _errorMessage = 'No merchants found for this category';
-        }
-      });
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-        _errorMessage = 'Error loading data: $e';
-      });
-      print('Error loading category details: $e');
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
+    final merchantBreakdown = widget.categoryDetails.merchantBreakdown;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -135,9 +83,6 @@ class _CategoryExpansionTileState extends State<CategoryExpansionTile> {
             setState(() {
               _isExpanded = expanded;
             });
-            if (expanded) {
-              _loadCategoryDetails();
-            }
           },
           leading: Container(
             width: 50,
@@ -206,61 +151,24 @@ class _CategoryExpansionTileState extends State<CategoryExpansionTile> {
           children: [
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child:
-                  _isLoading
-                      ? const Center(
-                        child: Padding(
-                          padding: EdgeInsets.all(16.0),
-                          child: CircularProgressIndicator(
-                            color: AppColors.primary,
+              child: merchantBreakdown.isEmpty
+                  ? const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Text(
+                          'No merchants found',
+                          style: TextStyle(
+                            fontFamily: "Poppins",
+                            color: Colors.grey,
                           ),
                         ),
-                      )
-                      : _errorMessage != null
-                      ? Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            children: [
-                              Icon(
-                                Icons.error_outline,
-                                color: Colors.grey[400],
-                                size: 48,
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                _errorMessage!,
-                                style: const TextStyle(
-                                  fontFamily: "Poppins",
-                                  color: Colors.grey,
-                                  fontSize: 14,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ],
-                          ),
-                        ),
-                      )
-                      : _categoryData == null ||
-                          _categoryData!.merchantBreakdown.isEmpty
-                      ? const Center(
-                        child: Padding(
-                          padding: EdgeInsets.all(16.0),
-                          child: Text(
-                            'No merchants found',
-                            style: TextStyle(
-                              fontFamily: "Poppins",
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ),
-                      )
-                      : Column(
-                        children:
-                            _categoryData!.merchantBreakdown.map((merchant) {
-                              return _buildMerchantTile(merchant);
-                            }).toList(),
                       ),
+                    )
+                  : Column(
+                      children: merchantBreakdown.map((merchant) {
+                        return _buildMerchantTile(merchant);
+                      }).toList(),
+                    ),
             ),
           ],
         ),
@@ -268,7 +176,7 @@ class _CategoryExpansionTileState extends State<CategoryExpansionTile> {
     );
   }
 
-  Widget _buildMerchantTile(MerchantBreakdown merchant) {
+  Widget _buildMerchantTile(MerchantSummary merchant) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
